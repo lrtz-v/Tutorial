@@ -27,5 +27,9 @@ int make_socket(uint16_t port)
         perror ("bind");
         exit (EXIT_FAILURE);
     }
-    return sock
+    return sock;
+}
+
+int main() {
+    return 0;
 }
