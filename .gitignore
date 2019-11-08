@@ -88,5 +88,8 @@ dump.rdb
 .vscode/
 
 *.iml
-
+*.out
+*.log
+*.pdf
+*.svg
 
