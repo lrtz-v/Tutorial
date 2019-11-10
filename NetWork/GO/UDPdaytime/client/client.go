@@ -9,10 +9,17 @@ import (
 func main() {
 
 	service := ":1234"
-	udpAddr, err := net.ResolveUDPAddr("udp4", service)
+
+	// 1. use
+	// udpAddr, err := net.ResolveUDPAddr("udp4", service)
+	// checkError(err)
+	// conn, err := net.DialUDP("udp", nil, udpAddr)
+	// checkError(err)
+
+	// 2. use Dial replace DialUDP
+	conn, err := net.Dial("udp", service)
 	checkError(err)
-	conn, err := net.DialUDP("udp", nil, udpAddr)
-	checkError(err)
+
 	_, err = conn.Write([]byte("anything"))
 	checkError(err)
 	var buf [512]byte
