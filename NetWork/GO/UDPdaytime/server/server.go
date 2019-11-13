@@ -26,6 +26,7 @@ func handleClient(conn *net.UDPConn) {
 	if err != nil {
 		return
 	}
+	fmt.Printf("[*] Receive %s\n", buf)
 	daytime := time.Now().String()
 	conn.WriteToUDP([]byte(daytime), addr)
 }
