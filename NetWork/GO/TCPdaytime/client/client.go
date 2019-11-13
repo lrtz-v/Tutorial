@@ -6,8 +6,10 @@ import (
 	"os"
 )
 
+// tcpdump -nn -n src host 192.168.199.216 and port 1234 and tcp
+// tcpdump tcp port 1234 and src host 192.168.199.216
 func getDate(num int) {
-	service := "127.0.0.1:1234"
+	service := ":1234"
 
 	// 1. use DailTCP
 	// tcpAddr, err := net.ResolveTCPAddr("tcp4", service)

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var address = "127.0.0.1:1234"
+var address = ":1234"
 
 func main() {
 
