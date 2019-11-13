@@ -6,24 +6,29 @@ import (
 	"os"
 )
 
-func getDate() string {
+func getDate(num int) {
 	service := "127.0.0.1:1234"
 
-    // 1. use DailTCP
+	// 1. use DailTCP
 	// tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
 	// checkError(err)
 	// conn, err := net.DialTCP("tcp", nil, tcpAddr)
 	// checkError(err)
 
-    // 2. use Dial replaces DailTCP
-	conn, err := net.Dial("tcp", service)
-	checkError(err)
+	// 2. use Dial replaces DailTCP
+	conn, dialErr := net.Dial("tcp", service)
+	checkError(dialErr)
+
+	msg := fmt.Sprintf("%d", num)
+	_, writeErr := conn.Write([]byte(msg))
+	checkError(writeErr)
+	fmt.Printf("[*] Send %s\n", msg)
 
 	var buf [512]byte
-	n, err := conn.Read(buf[0:])
-	checkError(err)
+	_, readErr := conn.Read(buf[0:])
+	checkError(readErr)
+	fmt.Printf("[*] Get %s\n", buf)
 
-	return string(buf[0:n])
 }
 
 func checkError(err error) {
@@ -34,5 +39,5 @@ func checkError(err error) {
 }
 
 func main() {
-	getDate()
+	getDate(1)
 }
