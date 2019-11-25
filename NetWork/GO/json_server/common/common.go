@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-// Person define persion information
+// Person define person information
 type Person struct {
 	Name  Name
 	Email []Email
