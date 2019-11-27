@@ -50,7 +50,7 @@ func GenX509Cert(commonName, organization string) {
 	keyPEMFile, err3 := os.Create("private.pem")
 	checkErr(err3)
 	defer keyPEMFile.Close()
-	pem.Encode(keyPEMFile, &pem.Block{Type: "RSA PRRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(&key)})
+	pem.Encode(keyPEMFile, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(&key)})
 }
 
 func LoadX509Cert(fileName string) *x509.Certificate {

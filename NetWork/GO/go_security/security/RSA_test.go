@@ -7,7 +7,7 @@ import (
 )
 
 func TestGenerateRSA(t *testing.T) {
-	t.Skip()
+	//	t.Skip()
 	GenRSAKeys(512)
 }
 
