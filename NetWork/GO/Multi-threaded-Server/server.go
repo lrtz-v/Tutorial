@@ -34,8 +34,8 @@ func handleConn(conn net.Conn) {
 			return
 		}
 		fmt.Println(string(buf[0:]))
-		_, err2 := conn.Write(buf[0:n])
-		if err2 != nil {
+		_, err = conn.Write(buf[0:n])
+		if err != nil {
 			return
 		}
 	}

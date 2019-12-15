@@ -24,15 +24,15 @@ func main() {
 
 	service := "127.0.0.1:1234"
 
-	listener, err1 := tls.Listen("tcp", service, &config)
-	if err1 != nil {
-		fmt.Println(err1.Error())
+	listener, err := tls.Listen("tcp", service, &config)
+	if err != nil {
+		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 	for {
-		conn, err3 := listener.Accept()
-		if err3 != nil {
-			fmt.Println(err3.Error())
+		conn, err := listener.Accept()
+		if err != nil {
+			fmt.Println(err.Error())
 			continue
 		}
 		go handle(conn)
@@ -48,8 +48,8 @@ func handle(conn net.Conn) {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		_, err2 := conn.Write(buf[0:n])
-		if err2 != nil {
+		_, err := conn.Write(buf[0:n])
+		if err != nil {
 			return
 		}
 	}

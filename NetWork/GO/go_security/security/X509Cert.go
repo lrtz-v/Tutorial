@@ -37,18 +37,18 @@ func GenX509Cert(commonName, organization string) {
 	derBytes, err := x509.CreateCertificate(random, &template, &template, &key.PublicKey, &key)
 	checkErr(err)
 
-	certCerFile, err1 := os.Create("github.name.cer")
-	checkErr(err1)
+	certCerFile, err := os.Create("github.name.cer")
+	checkErr(err)
 	defer certCerFile.Close()
 	certCerFile.Write(derBytes)
 
-	certPEMFile, err2 := os.Create("github.name.pem")
-	checkErr(err2)
+	certPEMFile, err := os.Create("github.name.pem")
+	checkErr(err)
 	defer certPEMFile.Close()
 	pem.Encode(certPEMFile, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 
-	keyPEMFile, err3 := os.Create("private.pem")
-	checkErr(err3)
+	keyPEMFile, err := os.Create("private.pem")
+	checkErr(err)
 	defer keyPEMFile.Close()
 	pem.Encode(keyPEMFile, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(&key)})
 }
@@ -59,10 +59,10 @@ func LoadX509Cert(fileName string) *x509.Certificate {
 	defer certCerFile.Close()
 
 	derBytes := make([]byte, 1000)
-	count, err1 := certCerFile.Read(derBytes)
-	checkErr(err1)
+	count, err := certCerFile.Read(derBytes)
+	checkErr(err)
 
-	cert, err2 := x509.ParseCertificate(derBytes[0:count])
-	checkErr(err2)
+	cert, err := x509.ParseCertificate(derBytes[0:count])
+	checkErr(err)
 	return cert
 }

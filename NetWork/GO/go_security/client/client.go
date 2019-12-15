@@ -19,9 +19,9 @@ func main() {
 		conn.Write([]byte("Hello " + string(n+48)))
 
 		buf := make([]byte, 512)
-		n, err1 := conn.Read(buf[0:])
-		if err1 != nil {
-			fmt.Println(err1.Error())
+		n, err := conn.Read(buf[0:])
+		if err != nil {
+			fmt.Println(err.Error())
 			continue
 		}
 		fmt.Println(string(buf[0:n]))

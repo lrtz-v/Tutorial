@@ -20,8 +20,8 @@ func main() {
 	}
 
 	for {
-		conn, err1 := app.Accept()
-		if err1 != nil {
+		conn, err := app.Accept()
+		if err != nil {
 			continue
 		}
 
@@ -48,8 +48,8 @@ func writeShorts(conn net.Conn, shorts []uint16) {
 	for _, v := range shorts {
 		buf[0] = byte(v >> 8)
 		buf[1] = byte(v & 255)
-		_, err1 := conn.Write(buf)
-		if err1 != nil {
+		_, err := conn.Write(buf)
+		if err != nil {
 			return
 		}
 	}

@@ -14,12 +14,12 @@ func main() {
 	checkError(err)
 
 	var buf [512]byte
-	_, err1 := conn.Read(buf[0:])
-	checkError(err1)
+	_, err = conn.Read(buf[0:])
+	checkError(err)
 
 	var newTime time.Time
-	_, err2 := asn1.Unmarshal(buf[:], &newTime)
-	checkError(err2)
+	_, err = asn1.Unmarshal(buf[:], &newTime)
+	checkError(err)
 	fmt.Println(newTime)
 }
 

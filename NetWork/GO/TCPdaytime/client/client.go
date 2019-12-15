@@ -18,17 +18,17 @@ func getDate(num int) {
 	// checkError(err)
 
 	// 2. use Dial replaces DailTCP
-	conn, dialErr := net.Dial("tcp", service)
-	checkError(dialErr)
+	conn, err := net.Dial("tcp", service)
+	checkError(err)
 
 	msg := fmt.Sprintf("%d", num)
-	_, writeErr := conn.Write([]byte(msg))
-	checkError(writeErr)
+	_, err = conn.Write([]byte(msg))
+	checkError(err)
 	fmt.Printf("[*] Send %s\n", msg)
 
 	var buf [512]byte
-	_, readErr := conn.Read(buf[0:])
-	checkError(readErr)
+	_, err = conn.Read(buf[0:])
+	checkError(err)
 	fmt.Printf("[*] Get %s\n", buf)
 
 }

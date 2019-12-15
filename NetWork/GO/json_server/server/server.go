@@ -13,8 +13,8 @@ func main() {
 	common.ErrCheck(err)
 
 	for {
-		conn, err1 := listener.Accept()
-		common.ErrCheck(err1)
+		conn, err := listener.Accept()
+		common.ErrCheck(err)
 
 		go handler(conn)
 	}

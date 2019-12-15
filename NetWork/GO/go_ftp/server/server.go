@@ -14,8 +14,8 @@ func main() {
 	common.ErrCheck(err)
 
 	for {
-		conn, err1 := listener.Accept()
-		common.ErrCheck(err1)
+		conn, err := listener.Accept()
+		common.ErrCheck(err)
 
 		go handler(conn)
 	}
@@ -61,8 +61,8 @@ func dirList(conn net.Conn) {
 	dir, err := os.Open(".")
 	common.ErrCheck(err)
 
-	names, err1 := dir.Readdirnames(-1)
-	common.ErrCheck(err1)
+	names, err := dir.Readdirnames(-1)
+	common.ErrCheck(err)
 	fmt.Println(names)
 
 	for _, nm := range names {

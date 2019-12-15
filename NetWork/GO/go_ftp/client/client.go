@@ -18,9 +18,9 @@ func main() {
 
 	reader := bufio.NewReader(os.Stdin)
 	for {
-		line, err1 := reader.ReadString('\n')
+		line, err := reader.ReadString('\n')
 		line = strings.TrimRight(line, "\t\r\n")
-		common.ErrCheck(err1)
+		common.ErrCheck(err)
 
 		strs := strings.SplitN(line, " ", 2)
 		switch strs[0] {

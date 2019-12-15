@@ -14,8 +14,8 @@ func main() {
 	checkError(err)
 
 	for {
-		conn, err1 := listener.Accept()
-		checkError(err1)
+		conn, err := listener.Accept()
+		checkError(err)
 
 		go handler(conn)
 	}

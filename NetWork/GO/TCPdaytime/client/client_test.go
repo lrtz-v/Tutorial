@@ -3,11 +3,11 @@ package main
 import "testing"
 
 func TestRequest(t *testing.T) {
-	getDate()
+	getDate(1)
 }
 
 func Benchmark(b *testing.B) {
-	getDate()
+	getDate(1)
 }
 
 // go test -bench=.

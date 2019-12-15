@@ -35,8 +35,8 @@ func readShorts(conn net.Conn) []uint16 {
 	}
 
 	for {
-		m, err1 := conn.Read(buf[n:])
-		if m == 0 || err1 != nil {
+		m, err := conn.Read(buf[n:])
+		if m == 0 || err != nil {
 			break
 		}
 		n += m

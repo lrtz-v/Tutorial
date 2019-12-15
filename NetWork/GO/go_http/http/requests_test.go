@@ -25,8 +25,8 @@ func TestGet(t *testing.T) {
 	//var buf [512]byte
 	//reader := response.Body
 	//for {
-	//	n, err1 := reader.Read(buf[0:])
-	//	if err1 != nil {
+	//	n, err := reader.Read(buf[0:])
+	//	if err != nil {
 	//		return
 	//	}
 	//fmt.Println(string(buf[0:n]))
