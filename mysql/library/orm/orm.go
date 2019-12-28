@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 // Config for orm connection
@@ -15,7 +16,7 @@ type Config struct {
 }
 
 // MySQL create new connection to mysql server.
-func MySQL(c *Config) (db *grom.DB) {
+func MySQL(c *Config) (db *gorm.DB) {
 	db, err := gorm.Open("mysql", c.DSN)
 	if err != nil {
 		panic(err)
