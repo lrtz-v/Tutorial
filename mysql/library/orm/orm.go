@@ -8,9 +8,9 @@ import (
 
 // Config for orm connection
 type Config struct {
-	DSN         string         // data source name.
-	Active      int            // pool
-	Idle        int            // pool
+	DSN         string        // data source name.
+	Active      int           // pool
+	Idle        int           // pool
 	IdleTimeout time.Duration // connect max life time.
 }
 
