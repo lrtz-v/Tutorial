@@ -22,6 +22,11 @@ type server struct {
 	productMap map[string]*pb.Product
 }
 
+// Ping
+func (s *server) Ping(ctx context.Context, in *pb.PingRequest) (*pb.PingResponse, error) {
+	return &pb.PingResponse{Ok:true}, status.New(codes.OK, "").Err()
+}
+
 // AddProduct implements ecommerce.AddProduct
 func (s *server) AddProduct(ctx context.Context,
 	in *pb.Product) (*pb.ProductID, error) {

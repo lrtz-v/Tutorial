@@ -5,6 +5,7 @@ package ecommerce;
 service ProductInfo {
     rpc addProduct(Product) returns (ProductID);
     rpc getProduct(ProductID) returns (Product);
+    rpc ping(PingRequest) returns (PingResponse);
 }
 
 message Product {
@@ -18,3 +19,8 @@ message ProductID {
     string value = 1;
 }
 
+message PingRequest {}
+
+message PingResponse {
+    bool ok = 1;
+}

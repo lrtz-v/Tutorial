@@ -5,8 +5,9 @@ import (
 	"log"
 	"time"
 
-	"google.golang.org/grpc"
 	pb "productinfo/client/ecommerce"
+
+	"google.golang.org/grpc"
 )
 
 const (
@@ -21,13 +22,21 @@ func main() {
 	}
 	defer conn.Close()
 	c := pb.NewProductInfoClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	// ping server
+	ping, err := c.Ping(ctx, &pb.PingRequest{})
+	if err != nil {
+		log.Fatalf("Could not add product: %v", err)
+	}
+	log.Printf("Ping Result: %t", ping.GetOk())
 
 	// Contact the server and print out its response.
 	name := "Apple iPhone 11"
 	description := "Meet Apple iPhone 11. All-new dual-camera system with Ultra Wide and Night mode."
 	price := float32(699.00)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
+	
 	r, err := c.AddProduct(ctx, &pb.Product{Name: name, Description: description, Price: price})
 	if err != nil {
 		log.Fatalf("Could not add product: %v", err)

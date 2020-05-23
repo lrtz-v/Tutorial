@@ -37,7 +37,7 @@ func (m *Product) Reset()         { *m = Product{} }
 func (m *Product) String() string { return proto.CompactTextString(m) }
 func (*Product) ProtoMessage()    {}
 func (*Product) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ProductInfo_f17a38c76bed3482, []int{0}
+	return fileDescriptor_ProductInfo_7a470bedefca2d63, []int{0}
 }
 func (m *Product) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Product.Unmarshal(m, b)
@@ -96,7 +96,7 @@ func (m *ProductID) Reset()         { *m = ProductID{} }
 func (m *ProductID) String() string { return proto.CompactTextString(m) }
 func (*ProductID) ProtoMessage()    {}
 func (*ProductID) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ProductInfo_f17a38c76bed3482, []int{1}
+	return fileDescriptor_ProductInfo_7a470bedefca2d63, []int{1}
 }
 func (m *ProductID) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ProductID.Unmarshal(m, b)
@@ -123,9 +123,79 @@ func (m *ProductID) GetValue() string {
 	return ""
 }
 
+type PingRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *PingRequest) Reset()         { *m = PingRequest{} }
+func (m *PingRequest) String() string { return proto.CompactTextString(m) }
+func (*PingRequest) ProtoMessage()    {}
+func (*PingRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ProductInfo_7a470bedefca2d63, []int{2}
+}
+func (m *PingRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PingRequest.Unmarshal(m, b)
+}
+func (m *PingRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PingRequest.Marshal(b, m, deterministic)
+}
+func (dst *PingRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PingRequest.Merge(dst, src)
+}
+func (m *PingRequest) XXX_Size() int {
+	return xxx_messageInfo_PingRequest.Size(m)
+}
+func (m *PingRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_PingRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PingRequest proto.InternalMessageInfo
+
+type PingResponse struct {
+	Ok                   bool     `protobuf:"varint,1,opt,name=ok" json:"ok,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *PingResponse) Reset()         { *m = PingResponse{} }
+func (m *PingResponse) String() string { return proto.CompactTextString(m) }
+func (*PingResponse) ProtoMessage()    {}
+func (*PingResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ProductInfo_7a470bedefca2d63, []int{3}
+}
+func (m *PingResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PingResponse.Unmarshal(m, b)
+}
+func (m *PingResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PingResponse.Marshal(b, m, deterministic)
+}
+func (dst *PingResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PingResponse.Merge(dst, src)
+}
+func (m *PingResponse) XXX_Size() int {
+	return xxx_messageInfo_PingResponse.Size(m)
+}
+func (m *PingResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_PingResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PingResponse proto.InternalMessageInfo
+
+func (m *PingResponse) GetOk() bool {
+	if m != nil {
+		return m.Ok
+	}
+	return false
+}
+
 func init() {
 	proto.RegisterType((*Product)(nil), "ecommerce.Product")
 	proto.RegisterType((*ProductID)(nil), "ecommerce.ProductID")
+	proto.RegisterType((*PingRequest)(nil), "ecommerce.PingRequest")
+	proto.RegisterType((*PingResponse)(nil), "ecommerce.PingResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -142,6 +212,7 @@ const _ = grpc.SupportPackageIsVersion4
 type ProductInfoClient interface {
 	AddProduct(ctx context.Context, in *Product, opts ...grpc.CallOption) (*ProductID, error)
 	GetProduct(ctx context.Context, in *ProductID, opts ...grpc.CallOption) (*Product, error)
+	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 }
 
 type productInfoClient struct {
@@ -170,10 +241,20 @@ func (c *productInfoClient) GetProduct(ctx context.Context, in *ProductID, opts 
 	return out, nil
 }
 
+func (c *productInfoClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
+	out := new(PingResponse)
+	err := c.cc.Invoke(ctx, "/ecommerce.ProductInfo/ping", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProductInfoServer is the server API for ProductInfo service.
 type ProductInfoServer interface {
 	AddProduct(context.Context, *Product) (*ProductID, error)
 	GetProduct(context.Context, *ProductID) (*Product, error)
+	Ping(context.Context, *PingRequest) (*PingResponse, error)
 }
 
 func RegisterProductInfoServer(s *grpc.Server, srv ProductInfoServer) {
@@ -216,6 +297,24 @@ func _ProductInfo_GetProduct_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProductInfo_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductInfoServer).Ping(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ecommerce.ProductInfo/Ping",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductInfoServer).Ping(ctx, req.(*PingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _ProductInfo_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "ecommerce.ProductInfo",
 	HandlerType: (*ProductInfoServer)(nil),
@@ -228,26 +327,33 @@ var _ProductInfo_serviceDesc = grpc.ServiceDesc{
 			MethodName: "getProduct",
 			Handler:    _ProductInfo_GetProduct_Handler,
 		},
+		{
+			MethodName: "ping",
+			Handler:    _ProductInfo_Ping_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "ProductInfo.proto",
 }
 
-func init() { proto.RegisterFile("ProductInfo.proto", fileDescriptor_ProductInfo_f17a38c76bed3482) }
+func init() { proto.RegisterFile("ProductInfo.proto", fileDescriptor_ProductInfo_7a470bedefca2d63) }
 
-var fileDescriptor_ProductInfo_f17a38c76bed3482 = []byte{
-	// 193 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x0c, 0x28, 0xca, 0x4f,
-	0x29, 0x4d, 0x2e, 0xf1, 0xcc, 0x4b, 0xcb, 0xd7, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x4c,
-	0x4d, 0xce, 0xcf, 0xcd, 0x4d, 0x2d, 0x4a, 0x4e, 0x55, 0x4a, 0xe5, 0x62, 0x87, 0xca, 0x0b, 0xf1,
-	0x71, 0x31, 0x65, 0xa6, 0x48, 0x30, 0x2a, 0x30, 0x6a, 0x70, 0x06, 0x31, 0x65, 0xa6, 0x08, 0x09,
-	0x71, 0xb1, 0xe4, 0x25, 0xe6, 0xa6, 0x4a, 0x30, 0x81, 0x45, 0xc0, 0x6c, 0x21, 0x05, 0x2e, 0xee,
-	0x94, 0xd4, 0xe2, 0xe4, 0xa2, 0xcc, 0x82, 0x92, 0xcc, 0xfc, 0x3c, 0x09, 0x66, 0xb0, 0x14, 0xb2,
-	0x90, 0x90, 0x08, 0x17, 0x6b, 0x41, 0x51, 0x66, 0x72, 0xaa, 0x04, 0x8b, 0x02, 0xa3, 0x06, 0x53,
-	0x10, 0x84, 0xa3, 0xa4, 0xc8, 0xc5, 0x09, 0x73, 0x86, 0x0b, 0x48, 0x49, 0x59, 0x62, 0x4e, 0x69,
-	0x2a, 0xd4, 0x2e, 0x08, 0xc7, 0xa8, 0x96, 0x8b, 0x1b, 0xc9, 0xa5, 0x42, 0x66, 0x5c, 0x5c, 0x89,
-	0x29, 0x29, 0x30, 0xb7, 0x09, 0xe9, 0xc1, 0x9d, 0xac, 0x07, 0x15, 0x93, 0x12, 0xc1, 0x14, 0xf3,
-	0x74, 0x01, 0xe9, 0x4b, 0x4f, 0x2d, 0x81, 0xe9, 0xc3, 0xaa, 0x46, 0x0a, 0x8b, 0x69, 0x49, 0x6c,
-	0xe0, 0xa0, 0x31, 0x06, 0x04, 0x00, 0x00, 0xff, 0xff, 0x56, 0x49, 0xd6, 0xcd, 0x2f, 0x01, 0x00,
-	0x00,
+var fileDescriptor_ProductInfo_7a470bedefca2d63 = []byte{
+	// 246 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x91, 0xcf, 0x4e, 0x84, 0x30,
+	0x10, 0xc6, 0x43, 0x5d, 0xff, 0x30, 0xa8, 0x89, 0x93, 0x8d, 0x12, 0x0e, 0x06, 0x39, 0xed, 0x89,
+	0x83, 0x26, 0xfa, 0x02, 0x7b, 0xd9, 0xdb, 0x86, 0x37, 0xc0, 0x76, 0x24, 0xcd, 0x4a, 0xa7, 0x96,
+	0xe2, 0xa3, 0xf9, 0x7c, 0x86, 0x02, 0x4a, 0xb2, 0x7b, 0xeb, 0xfc, 0xbe, 0xf9, 0xda, 0xef, 0x4b,
+	0xe1, 0x6e, 0xef, 0x58, 0xf5, 0xd2, 0xef, 0xcc, 0x07, 0x97, 0xd6, 0xb1, 0x67, 0x8c, 0x49, 0x72,
+	0xdb, 0x92, 0x93, 0x54, 0x10, 0x5c, 0x4e, 0x3a, 0xde, 0x82, 0xd0, 0x2a, 0x8d, 0xf2, 0x68, 0x13,
+	0x57, 0x42, 0x2b, 0x44, 0x58, 0x99, 0xba, 0xa5, 0x54, 0x04, 0x12, 0xce, 0x98, 0x43, 0xa2, 0xa8,
+	0x93, 0x4e, 0x5b, 0xaf, 0xd9, 0xa4, 0x67, 0x41, 0x5a, 0x22, 0x5c, 0xc3, 0xb9, 0x75, 0x5a, 0x52,
+	0xba, 0xca, 0xa3, 0x8d, 0xa8, 0xc6, 0xa1, 0x78, 0x82, 0x78, 0x8e, 0xb1, 0x1d, 0x56, 0xbe, 0xeb,
+	0xcf, 0x9e, 0xa6, 0xb7, 0xc6, 0xa1, 0xb8, 0x81, 0x64, 0xaf, 0x4d, 0x53, 0xd1, 0x57, 0x4f, 0x9d,
+	0x2f, 0x1e, 0xe1, 0x7a, 0x1c, 0x3b, 0xcb, 0xa6, 0xa3, 0x21, 0x1d, 0x1f, 0x82, 0xe3, 0xaa, 0x12,
+	0x7c, 0x78, 0xfe, 0x89, 0x20, 0x59, 0x34, 0xc3, 0x57, 0x80, 0x5a, 0xa9, 0xb9, 0x0b, 0x96, 0x7f,
+	0x15, 0xcb, 0x89, 0x65, 0xeb, 0x63, 0xb6, 0xdb, 0x0e, 0xbe, 0x86, 0xfc, 0xec, 0x3b, 0xb9, 0x93,
+	0x9d, 0xb8, 0x0d, 0xdf, 0x60, 0x65, 0xb5, 0x69, 0xf0, 0x7e, 0xa9, 0xfd, 0xe7, 0xcf, 0x1e, 0x8e,
+	0xf8, 0x58, 0xe4, 0xfd, 0x22, 0xfc, 0xc1, 0xcb, 0x6f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x58, 0xed,
+	0xa2, 0xf7, 0x98, 0x01, 0x00, 0x00,
 }
