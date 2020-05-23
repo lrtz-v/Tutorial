@@ -94,3 +94,8 @@ dump.rdb
 *.svg
 C++
 
+# Ignore `bin` dir
+bin/
+# or
+*/bin/*
+

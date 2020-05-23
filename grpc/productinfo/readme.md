@@ -11,7 +11,8 @@ protoc -I proto/ proto/*.proto --go_out=plugins=grpc:client/ecommerce/
 ## golang code compiler
 
 ```shell
-go build
+go build -i -v -o bin/server
+go build -i -v -o bin/client
 ```
 
 ## start service
