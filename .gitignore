@@ -93,3 +93,6 @@ dump.rdb
 *.pdf
 *.svg
 C++
+
+*
+!*.*
