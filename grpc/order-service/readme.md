@@ -18,6 +18,6 @@ go build -i -v -o bin/client
 ## start service
 
 ```shell
-./server
-./client
+./bin/server
+./bin/client
 ```
