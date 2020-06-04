@@ -71,12 +71,12 @@ func (s *server) ProcessOrders(stream pb.OrderManagement_ProcessOrdersServer) er
 	batchMarker := 1
 	var combinedShipmentMap = make(map[string]pb.CombinedShipment)
 	for {
-		orderId, err := stream.Recv()
-		log.Printf("Reading Proc order : %s", orderId)
+		orderID, err := stream.Recv()
+		log.Printf("Reading Proc order : %s", orderID)
 		if err == io.EOF {
 			// Client has sent all the messages
 			// Send remaining shipments
-			log.Printf("EOF : %s", orderId)
+			log.Printf("EOF : %s", orderID)
 			for _, shipment := range combinedShipmentMap {
 				if err := stream.Send(&shipment); err != nil {
 					return err
@@ -89,16 +89,16 @@ func (s *server) ProcessOrders(stream pb.OrderManagement_ProcessOrdersServer) er
 			return err
 		}
 
-		destination := orderMap[orderId.GetValue()].Destination
+		destination := orderMap[orderID.GetValue()].Destination
 		shipment, found := combinedShipmentMap[destination]
 
 		if found {
-			ord := orderMap[orderId.GetValue()]
+			ord := orderMap[orderID.GetValue()]
 			shipment.OrdersList = append(shipment.OrdersList, &ord)
 			combinedShipmentMap[destination] = shipment
 		} else {
-			comShip := pb.CombinedShipment{Id: "cmb - " + (orderMap[orderId.GetValue()].Destination), Status: "Processed!"}
-			ord := orderMap[orderId.GetValue()]
+			comShip := pb.CombinedShipment{Id: "cmb - " + (orderMap[orderID.GetValue()].Destination), Status: "Processed!"}
+			ord := orderMap[orderID.GetValue()]
 			comShip.OrdersList = append(shipment.OrdersList, &ord)
 			combinedShipmentMap[destination] = comShip
 			log.Print(len(comShip.OrdersList), "  "+comShip.GetId())
@@ -119,13 +119,52 @@ func (s *server) ProcessOrders(stream pb.OrderManagement_ProcessOrdersServer) er
 	}
 }
 
+// Server :: Unary Interceptor
+func orderUnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	// Pre-processing logic
+	// Gets info about the current RPC call by examining the args passed in
+	log.Println("======= [Server Interceptor] ", info.FullMethod)
+	log.Printf(" Pre Proc Message : %s", req)
+
+	// Invoking the handler to complete the normal execution of a unary RPC.
+	m, err := handler(ctx, req)
+
+	// Post processing logic
+	log.Printf(" Post Proc Message : %s", m)
+	return m, err
+}
+
+// wrappedStream wraps around the embedded grpc.ServerStream, and intercepts the RecvMsg and
+// SendMsg method call.
+type wrappedStream struct {
+	grpc.ServerStream
+}
+
+func newWrappedStream(s grpc.ServerStream) grpc.ServerStream {
+	return &wrappedStream{s}
+}
+
+func orderServerStreamInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	// Pre-processing
+	log.Println("====== [Server Stream Interceptor] ", info.FullMethod)
+
+	// Invoking the StreamHandler to complete the execution of RPC invocation
+	err := handler(srv, newWrappedStream(ss))
+	if err != nil {
+		log.Printf("RPC failed with error %v", err)
+	}
+	return err
+}
+
 func main() {
 	initOrderMap()
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(orderUnaryServerInterceptor),
+		grpc.StreamInterceptor(orderServerStreamInterceptor))
 	pb.RegisterOrderManagementServer(s, &server{})
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

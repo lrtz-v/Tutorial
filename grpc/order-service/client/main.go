@@ -93,7 +93,7 @@ func main() {
 		log.Fatalf("%v.Send(%v) = %v", c, "104", err)
 	}
 
-	channel := make(chan struct{})
+	channel := make(chan int)
 	go asncClientBidirectionalRPC(streamProcOrder, channel)
 	time.Sleep(time.Millisecond * 100)
 
@@ -107,7 +107,7 @@ func main() {
 	<-channel
 }
 
-func asncClientBidirectionalRPC(streamProcOrder pb.OrderManagement_ProcessOrdersClient, c chan struct{}) {
+func asncClientBidirectionalRPC(streamProcOrder pb.OrderManagement_ProcessOrdersClient, c chan int) {
 	for {
 		combinedShipment, errProcOrder := streamProcOrder.Recv()
 		if errProcOrder == io.EOF {
@@ -115,6 +115,6 @@ func asncClientBidirectionalRPC(streamProcOrder pb.OrderManagement_ProcessOrders
 		}
 		log.Println("Combined shipment : ", combinedShipment.OrdersList)
 	}
-	<-c
+	c <- 0
 
 }
