@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"google.golang.org/grpc/status"
 	"io"
 	"log"
 	"time"
@@ -26,14 +27,19 @@ func main() {
 	}
 	defer conn.Close()
 	c := pb.NewOrderManagementClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	// ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	//defer cancel()
+
+	clientDeadline := time.Now().Add(time.Duration(2 * time.Second))
+	ctx, cancel := context.WithDeadline(context.Background(), clientDeadline)
 	defer cancel()
 
-	// order, err := c.GetOrder(ctx, &wrappers.StringValue{Value: "102"})
-	// if err != nil {
-	// 	log.Fatalf("Could not get order: %v", err)
-	// }
-	// log.Printf("Order: %v", order.String())
+	order, addErr := c.GetOrder(ctx, &wrappers.StringValue{Value: "102"})
+	if addErr != nil {
+		got := status.Code(addErr)
+		log.Fatalf("Error occured -> getOrder: %v", got)
+	}
+	log.Printf("Order: %v", order.String())
 
 	// searchStream, _ := c.SearchOrders(ctx, &wrappers.StringValue{Value: "Google"})
 	// for {
