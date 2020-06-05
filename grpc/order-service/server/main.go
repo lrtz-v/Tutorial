@@ -16,6 +16,7 @@ import (
 	epb "google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -35,6 +36,21 @@ type helloServer struct{}
 // SayHello implements helloworld.GreeterServer
 func (s *helloServer) SayHello(ctx context.Context, in *hello_pb.HelloRequest) (*hello_pb.HelloReply, error) {
 	log.Printf("Greeter Service - SayHello RPC")
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.DataLoss, "UnaryEcho: failed to get metadata")
+	}
+	if t, ok := md["timestamp"]; ok {
+		fmt.Printf("timestamp from metadata:\n")
+		for i, e := range t {
+			fmt.Printf("====> Metadata %d. %s\n", i, e)
+		}
+	}
+	// Creating and sending a header.
+	header := metadata.New(map[string]string{"location": "San Jose", "timestamp": time.Now().Format(time.StampNano)})
+	grpc.SendHeader(ctx, header)
+
 	return &hello_pb.HelloReply{Message: "Hello " + in.Name}, nil
 }
 
@@ -70,6 +86,15 @@ func (s *server) GetOrder(ctx context.Context, orderID *wrappers.StringValue) (*
 }
 
 func (s *server) SearchOrders(searchQuery *wrappers.StringValue, stream pb.OrderManagement_SearchOrdersServer) error {
+
+	defer func() {
+		trailer := metadata.Pairs("timestamp", time.Now().Format(time.StampNano))
+		stream.SetTrailer(trailer)
+	}()
+
+	header := metadata.New(map[string]string{"location": "MTV", "timestamp": time.Now().Format(time.StampNano)})
+	stream.SendHeader(header)
+
 	for key, order := range orderMap {
 		log.Print(key, order)
 		for _, itemStr := range order.Items {
@@ -104,6 +129,14 @@ func (s *server) ProcessOrders(stream pb.OrderManagement_ProcessOrdersServer) er
 	// Cancel from Server Side
 	//_, cancel := context.WithCancel(stream.Context())
 	//cancel()
+
+	defer func() {
+		trailer := metadata.Pairs("timestamp", time.Now().Format(time.StampNano))
+		stream.SetTrailer(trailer)
+	}()
+
+	header := metadata.New(map[string]string{"location": "MTV", "timestamp": time.Now().Format(time.StampNano)})
+	stream.SendHeader(header)
 
 	batchMarker := 1
 	var combinedShipmentMap = make(map[string]pb.CombinedShipment)

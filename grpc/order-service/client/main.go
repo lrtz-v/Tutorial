@@ -14,6 +14,7 @@ import (
 	epb "google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 )
 
 const (
@@ -59,11 +60,37 @@ func main() {
 		log.Printf("Order: %v", order.String())
 	}
 
+	var header, trailer metadata.MD
+	md := metadata.Pairs(
+		"timestamp", time.Now().Format(time.StampNano),
+		"type", "unary",
+	)
+	mdCtx := metadata.NewOutgoingContext(context.Background(), md)
+	ctxA := metadata.AppendToOutgoingContext(mdCtx, "k1", "v1", "k2", "v2")
 	helloClient := hello_pb.NewGreeterClient(conn)
-	_, err = helloClient.SayHello(ctx, &hello_pb.HelloRequest{Name: "gRPC up and Running"})
+	_, err = helloClient.SayHello(ctxA, &hello_pb.HelloRequest{Name: "gRPC up and Running"}, grpc.Header(&header), grpc.Trailer(&trailer))
 	if err != nil {
-		log.Printf("[*] SayHello Error: %s", err)
+		log.Printf("[*] SayHello Error: %s,", err)
 	}
+
+	// Reading the headers
+	if t, ok := header["timestamp"]; ok {
+		log.Printf("timestamp from header:\n")
+		for i, e := range t {
+			log.Printf(" %d. %s\n", i, e)
+		}
+	} else {
+		log.Fatal("timestamp expected but doesn't exist in header")
+	}
+	if l, ok := header["location"]; ok {
+		log.Printf("location from header:\n")
+		for i, e := range l {
+			log.Printf(" %d. %s\n", i, e)
+		}
+	} else {
+		log.Fatal("location expected but doesn't exist in header")
+	}
+
 	// searchStream, _ := c.SearchOrders(ctx, &wrappers.StringValue{Value: "Google"})
 	// for {
 	// 	searchOrder, err := searchStream.Recv()
@@ -107,9 +134,24 @@ func main() {
 	// log.Printf("Order: %v", order.String())
 
 	// BI
-	streamProcOrder, err := c.ProcessOrders(ctx)
+	md = metadata.Pairs(
+		"timestamp", time.Now().Format(time.StampNano),
+		"type", "stream",
+	)
+	mdCtx = metadata.NewOutgoingContext(context.Background(), md)
+	ctxA = metadata.AppendToOutgoingContext(mdCtx, "k1", "v1", "k2", "v2")
+	streamProcOrder, err := c.ProcessOrders(ctxA)
 	if err != nil {
 		log.Fatalf("%v.ProcessOrders(_) = _, %v", c, err)
+	}
+	header, _ = streamProcOrder.Header()
+	if l, ok := header["location"]; ok {
+		log.Printf("[*] stream location from header:\n")
+		for i, e := range l {
+			log.Printf(" %d. %s\n", i, e)
+		}
+	} else {
+		log.Fatal("[*] stream location expected but doesn't exist in header")
 	}
 
 	if err := streamProcOrder.Send(&wrappers.StringValue{Value: "102"}); err != nil {
@@ -145,6 +187,15 @@ func asncClientBidirectionalRPC(streamProcOrder pb.OrderManagement_ProcessOrders
 	for {
 		combinedShipment, errProcOrder := streamProcOrder.Recv()
 		if errProcOrder == io.EOF {
+			trailer := streamProcOrder.Trailer()
+			if t, ok := trailer["timestamp"]; ok {
+				log.Printf("[*] Trailer timestamp from header:\n")
+				for i, e := range t {
+					log.Printf(" %d. %s\n", i, e)
+				}
+			} else {
+				log.Fatal("[*] Trailer timestamp expected but doesn't exist in header")
+			}
 			break
 		}
 		log.Println("Combined shipment : ", combinedShipment.OrdersList)
@@ -161,7 +212,6 @@ func orderUnaryClientInterceptor(ctx context.Context, method string, req, reply 
 
 	// Post-processor phase
 	log.Println(reply)
-
 	return err
 }
 
