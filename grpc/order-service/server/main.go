@@ -12,6 +12,7 @@ import (
 	pb "productinfo/server/ecommerce"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
+	epb "google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -37,7 +38,20 @@ func (s *server) GetOrder(ctx context.Context, orderID *wrappers.StringValue) (*
 		log.Printf("RPC has reached deadline exceeded state : %s", ctx.Err())
 		return nil, ctx.Err()
 	}
-
+	if orderID.Value == "-1" {
+		log.Printf("Order Id is invalid! -> Received Order Id %s", orderID.Value)
+		errorStatus := status.New(codes.InvalidArgument, "Invalid Order Id")
+		ds, err := errorStatus.WithDetails(
+			&epb.BadRequest_FieldViolation{
+				Field:       "ID",
+				Description: fmt.Sprintf("Order ID received is not valid %s: %s", orderID.Value, "Order ID"),
+			},
+		)
+		if err != nil {
+			return nil, errorStatus.Err()
+		}
+		return nil, ds.Err()
+	}
 	ord, ok := orderMap[orderID.Value]
 	if ok {
 		return &ord, status.New(codes.OK, "").Err()
@@ -78,9 +92,20 @@ func (s *server) UpdateOrders(stream pb.OrderManagement_UpdateOrdersServer) erro
 }
 
 func (s *server) ProcessOrders(stream pb.OrderManagement_ProcessOrdersServer) error {
+	// Cancel from Server Side
+	//_, cancel := context.WithCancel(stream.Context())
+	//cancel()
+
 	batchMarker := 1
 	var combinedShipmentMap = make(map[string]pb.CombinedShipment)
 	for {
+
+		if stream.Context().Err() == context.Canceled {
+			log.Printf(" Context Cacelled for this stream: -> %s", stream.Context().Err())
+			log.Printf("Stopped processing any more order of this stream!")
+			return stream.Context().Err()
+		}
+
 		orderID, err := stream.Recv()
 		log.Printf("Reading Proc order : %s", orderID)
 		if err == io.EOF {

@@ -10,7 +10,9 @@ import (
 	pb "productinfo/client/ecommerce"
 
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
+	epb "google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 const (
@@ -30,16 +32,31 @@ func main() {
 	// ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	//defer cancel()
 
-	clientDeadline := time.Now().Add(time.Duration(2 * time.Second))
+	clientDeadline := time.Now().Add(time.Duration(5 * time.Second))
 	ctx, cancel := context.WithDeadline(context.Background(), clientDeadline)
+	ctx, cancel = context.WithCancel(context.Background())
 	defer cancel()
 
-	order, addErr := c.GetOrder(ctx, &wrappers.StringValue{Value: "102"})
-	if addErr != nil {
-		got := status.Code(addErr)
-		log.Fatalf("Error occured -> getOrder: %v", got)
+	order, getErr := c.GetOrder(ctx, &wrappers.StringValue{Value: "-1"})
+	if getErr != nil {
+		errorCode := status.Code(getErr)
+		if errorCode == codes.InvalidArgument {
+			log.Printf("Invalid Argument Error: %s", errorCode)
+			errorStatus := status.Convert(getErr)
+			for _, d := range errorStatus.Details() {
+				switch info := d.(type) {
+				case *epb.BadRequest_FieldViolation:
+					log.Printf("Request Field Invalid: %s", info)
+				default:
+					log.Printf("Unexpected error type: %s", info)
+				}
+			}
+		} else {
+			log.Printf("Unhandled error: %s", errorCode)
+		}
+	} else {
+		log.Printf("Order: %v", order.String())
 	}
-	log.Printf("Order: %v", order.String())
 
 	// searchStream, _ := c.SearchOrders(ctx, &wrappers.StringValue{Value: "Google"})
 	// for {
@@ -103,8 +120,11 @@ func main() {
 
 	channel := make(chan int)
 	go asncClientBidirectionalRPC(streamProcOrder, channel)
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 1000)
 
+	// Canceling the RPC
+	cancel()
+	log.Printf("RPC Status : %s", ctx.Err())
 	if err := streamProcOrder.Send(&wrappers.StringValue{Value: "101"}); err != nil {
 		log.Fatalf("%v.Send(%v) = %v", c, "101", err)
 	}
