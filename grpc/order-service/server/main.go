@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	hello_pb "google.golang.org/grpc/examples/helloworld/helloworld"
 	pb "productinfo/server/ecommerce"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -27,6 +28,14 @@ var orderMap = make(map[string]pb.Order)
 
 type server struct {
 	orderMap map[string]*pb.Order
+}
+
+type helloServer struct{}
+
+// SayHello implements helloworld.GreeterServer
+func (s *helloServer) SayHello(ctx context.Context, in *hello_pb.HelloRequest) (*hello_pb.HelloReply, error) {
+	log.Printf("Greeter Service - SayHello RPC")
+	return &hello_pb.HelloReply{Message: "Hello " + in.Name}, nil
 }
 
 func (s *server) GetOrder(ctx context.Context, orderID *wrappers.StringValue) (*pb.Order, error) {
@@ -201,6 +210,8 @@ func main() {
 		grpc.UnaryInterceptor(orderUnaryServerInterceptor),
 		grpc.StreamInterceptor(orderServerStreamInterceptor))
 	pb.RegisterOrderManagementServer(s, &server{})
+	hello_pb.RegisterGreeterServer(s, &helloServer{})
+
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

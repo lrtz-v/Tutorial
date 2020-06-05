@@ -7,6 +7,7 @@ import (
 	"log"
 	"time"
 
+	hello_pb "google.golang.org/grpc/examples/helloworld/helloworld"
 	pb "productinfo/client/ecommerce"
 
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
@@ -58,6 +59,11 @@ func main() {
 		log.Printf("Order: %v", order.String())
 	}
 
+	helloClient := hello_pb.NewGreeterClient(conn)
+	_, err = helloClient.SayHello(ctx, &hello_pb.HelloRequest{Name: "gRPC up and Running"})
+	if err != nil {
+		log.Printf("[*] SayHello Error: %s", err)
+	}
 	// searchStream, _ := c.SearchOrders(ctx, &wrappers.StringValue{Value: "Google"})
 	// for {
 	// 	searchOrder, err := searchStream.Recv()
