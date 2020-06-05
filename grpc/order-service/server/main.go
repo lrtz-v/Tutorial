@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"strings"
+	"time"
 
 	pb "productinfo/server/ecommerce"
 
@@ -28,6 +29,15 @@ type server struct {
 }
 
 func (s *server) GetOrder(ctx context.Context, orderID *wrappers.StringValue) (*pb.Order, error) {
+
+	sleepDuration := 1
+	log.Println("Sleeping for :", sleepDuration, "s")
+	time.Sleep(time.Duration(sleepDuration) * time.Second)
+	if ctx.Err() == context.DeadlineExceeded {
+		log.Printf("RPC has reached deadline exceeded state : %s", ctx.Err())
+		return nil, ctx.Err()
+	}
+
 	ord, ok := orderMap[orderID.Value]
 	if ok {
 		return &ord, status.New(codes.OK, "").Err()
