@@ -3,6 +3,7 @@ module github.com/Tutorial
 go 1.13
 
 require (
+	bitbucket.org/avd/go-ipc v0.6.1 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.3.2
 	golang.org/x/crypto v0.0.0-20191227163750-53104e6ec876
