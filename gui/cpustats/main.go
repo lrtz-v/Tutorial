@@ -2,9 +2,8 @@ package main
 
 import (
 	"github.com/leaanthony/mewn"
-	"github.com/lrtz-v/Tutorial/gui/cpustats/pks/sys"
+	"github.com/lrtz-v/Tutorial/gui/cpustats/pkg/sys"
 	"github.com/wailsapp/wails"
-	// "gui/cpustats/pkg/sys"
 )
 
 func basic() string {
