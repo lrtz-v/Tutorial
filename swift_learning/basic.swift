@@ -703,3 +703,369 @@ for scalar in dogString.unicodeScalars {
     print("\(scalar) ")
 }
 
+/*
+ Arrays
+ */
+
+// Creating an Empty Array
+var someInts = [Int]()
+someInts.append(3)
+someInts = []
+var threeDoubles = Array(repeating: 0.0, count: 3)
+var anotherThreeDoubles = Array(repeating: 2.5, count: 3)
+
+var sixDoubles = threeDoubles + anotherThreeDoubles
+
+var shoppingList: [String] = ["Eggs", "Milk"]
+print("The shopping list contains \(shoppingList.count) items.")
+if shoppingList.isEmpty {
+    print("The shopping list is empty.")
+} else {
+    print("The shopping list is not empty.")
+}
+shoppingList += ["Baking Powder"]
+shoppingList += ["Chocolate Spread", "Cheese", "Butter", "", "", ""]
+shoppingList[4...6] = ["Bananas", "Apples", "", "", ""]
+shoppingList.insert("Maple Syrup", at: 0)
+
+let mapleSyrup = shoppingList.remove(at: 0)
+
+for item in shoppingList {
+    print(item)
+}
+
+for (index, value) in shoppingList.enumerated() {
+    print("Item \(index + 1): \(value)")
+}
+
+/*
+ Sets
+ */
+var letters = Set<Character>()
+letters.insert("a")
+// letters now contains 1 value of type Character
+letters = []
+
+var newSet: Set<String> = ["Rock", "Classical", "Hip hop"]
+var favoriteGenres: Set = ["Rock", "Classical", "Hip hop"]
+
+print("I have \(favoriteGenres.count) favorite music genres.")
+if favoriteGenres.isEmpty {
+    print("As far as music goes, I'm not picky.")
+} else {
+    print("I have particular music preferences.")
+}
+
+favoriteGenres.insert("Jazz")
+
+if let removedGenre = favoriteGenres.remove("Rock") {
+    print("\(removedGenre)? I'm over it.")
+} else {
+    print("I never much cared for that.")
+}
+
+if favoriteGenres.contains("Funk") {
+    print("I get up on the good foot.")
+} else {
+    print("It's too funky in here.")
+}
+
+for genre in favoriteGenres {
+    print("\(genre)")
+}
+
+/*
+ Performing Set Operations
+ */
+let oddDigits: Set = [1, 3, 5, 7, 9]
+let evenDigits: Set = [0, 2, 4, 6, 8]
+let singleDigitPrimeNumbers: Set = [2, 3, 5, 7]
+
+// create a new set with all of the values in both sets.
+print(oddDigits.union(evenDigits).sorted()) // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+// create a new set with only the values common to both sets.
+print(oddDigits.intersection(evenDigits).sorted()) // []
+
+// create a new set with values not in the specified set.
+print(oddDigits.subtracting(singleDigitPrimeNumbers).sorted()) // [1, 9]
+
+// create a new set with values in either set, but not both.
+print(oddDigits.symmetricDifference(singleDigitPrimeNumbers).sorted()) // [1, 2, 9]
+
+
+let houseAnimals: Set = ["🐶", "🐱"]
+let farmAnimals: Set = ["🐮", "🐔", "🐑", "🐶", "🐱"]
+let cityAnimals: Set = ["🐦", "🐭"]
+
+// whether all of the values of a set are contained in the specified set.
+print(houseAnimals.isSubset(of: farmAnimals))
+
+// whether a set contains all of the values in a specified set.
+print(farmAnimals.isSuperset(of: houseAnimals))
+
+// whether two sets have no values in common.
+print(farmAnimals.isDisjoint(with: cityAnimals))
+
+
+/*
+ Dictionaries
+ */
+
+var namesOfIntegers = [Int: String]()
+namesOfIntegers[16] = "sixteen"
+// namesOfIntegers now contains 1 key-value pair
+namesOfIntegers = [:]
+var airports1: [String: String] = ["YYZ": "Toronto Pearson", "DUB": "Dublin"]
+var airports = ["YYZ": "Toronto Pearson", "DUB": "Dublin"]
+
+print("The airports dictionary contains \(airports.count) items.")
+if airports.isEmpty {
+    print("The airports dictionary is empty.")
+} else {
+    print("The airports dictionary is not empty.")
+}
+airports["LHR"] = "London"
+
+if let oldValue = airports.updateValue("Dublin Airport", forKey: "DUB") {
+    print("The old value for DUB was \(oldValue).")
+}
+
+if let airportName = airports["DUB"] {
+    print("The name of the airport is \(airportName).")
+} else {
+    print("That airport is not in the airports dictionary.")
+}
+airports["APL"] = "Apple International"
+// "Apple International" is not the real airport for APL, so delete it
+airports["APL"] = nil  // APL has now been removed from the dictionary
+
+if let removedValue = airports.removeValue(forKey: "DUB") {
+    print("The removed airport's name is \(removedValue).")
+} else {
+    print("The airports dictionary does not contain a value for DUB.")
+}
+
+for (airportCode, airportName) in airports {
+    print("\(airportCode): \(airportName)")
+}
+
+for airportCode in airports.keys {
+    print("Airport code: \(airportCode)")
+}
+// Airport code: LHR
+// Airport code: YYZ
+
+for airportName in airports.values {
+    print("Airport name: \(airportName)")
+}
+
+let airportCodes = [String](airports.keys)
+// airportCodes is ["LHR", "YYZ"]
+
+let airportNames = [String](airports.values)
+
+
+/*
+ For-In Loops
+ While Loops
+ Repeat-While
+ */
+
+var finalSquare = 25
+var board = [Int](repeating: 0, count: finalSquare + 1)
+board[03] = +08; board[06] = +11; board[09] = +09; board[10] = +02
+board[14] = -10; board[19] = -11; board[22] = -02; board[24] = -08
+
+var square = 0
+var diceRoll = 0
+while square < finalSquare {
+    // roll the dice
+    diceRoll += 1
+    if diceRoll == 7 { diceRoll = 1 }
+    // move by the rolled amount
+    square += diceRoll
+    if square < board.count {
+        // if we're still on the board, move up or down for a snake or a ladder
+        square += board[square]
+    }
+}
+print("Game over!")
+
+
+
+board = [Int](repeating: 0, count: finalSquare + 1)
+board[03] = +08; board[06] = +11; board[09] = +09; board[10] = +02
+board[14] = -10; board[19] = -11; board[22] = -02; board[24] = -08
+square = 0
+diceRoll = 0
+
+repeat {
+    // move up or down for a snake or ladder
+    square += board[square]
+    // roll the dice
+    diceRoll += 1
+    if diceRoll == 7 { diceRoll = 1 }
+    // move by the rolled amount
+    square += diceRoll
+} while square < finalSquare
+print("Game over!")
+
+/*
+ Conditional Statements
+ - If
+ - Switch
+ - No Implicit Fallthrough
+ */
+
+let someCharacter: Character = "z"
+switch someCharacter {
+case "a":
+    print("The first letter of the alphabet")
+case "z":
+    print("The last letter of the alphabet")
+default:
+    print("Some other character")
+}
+
+let anotherCharacter: Character = "a"
+switch anotherCharacter {
+case "a", "A":
+    print("The letter A")
+default:
+    print("Not the letter A")
+}
+
+// Interval Matching
+let approximateCount = 62
+let countedThings = "moons orbiting Saturn"
+let naturalCount: String
+switch approximateCount {
+case 0:
+    naturalCount = "no"
+case 1..<5:
+    naturalCount = "a few"
+case 5..<12:
+    naturalCount = "several"
+case 12..<100:
+    naturalCount = "dozens of"
+case 100..<1000:
+    naturalCount = "hundreds of"
+default:
+    naturalCount = "many"
+}
+
+// Tuples
+let somePoint = (1, 1)
+switch somePoint {
+case (0, 0):
+    print("\(somePoint) is at the origin")
+case (_, 0):
+    print("\(somePoint) is on the x-axis")
+case (0, _):
+    print("\(somePoint) is on the y-axis")
+case (-2...2, -2...2):
+    print("\(somePoint) is inside the box")
+default:
+    print("\(somePoint) is outside of the box")
+}
+
+// Value Bindings
+let anotherPoint = (2, 0)
+switch anotherPoint {
+case (let x, 0):
+    print("on the x-axis with an x value of \(x)")
+case (0, let y):
+    print("on the y-axis with a y value of \(y)")
+case let (x, y):
+    print("somewhere else at (\(x), \(y))")
+}
+
+// Where
+let yetAnotherPoint = (1, -1)
+switch yetAnotherPoint {
+case let (x, y) where x == y:
+    print("(\(x), \(y)) is on the line x == y")
+case let (x, y) where x == -y:
+    print("(\(x), \(y)) is on the line x == -y")
+case let (x, y):
+    print("(\(x), \(y)) is just some arbitrary point")
+}
+
+// Compound Cases
+let s: Character = "e"
+switch s {
+case "a", "e", "i", "o", "u":
+    print("\(someCharacter) is a vowel")
+case "b", "c", "d", "f", "g", "h", "j", "k", "l", "m",
+     "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z":
+    print("\(someCharacter) is a consonant")
+default:
+    print("\(someCharacter) is not a vowel or a consonant")
+}
+
+/*
+ Control Transfer Statements
+ - continue
+ - break
+ - fallthrough
+ - return
+ - throw
+ */
+
+// fallthrough
+let integerToDescribe = 5
+var description = "The number \(integerToDescribe) is"
+switch integerToDescribe {
+case 2, 3, 5, 7, 11, 13, 17, 19:
+    description += " a prime number, and also"
+    fallthrough
+default:
+    description += " an integer."
+}
+print(description)
+
+
+/*
+ Labeled Statements
+ - mark a loop statement or conditional statement with a statement label
+ 
+ label name: while condition {
+     statements
+ }
+ */
+
+finalSquare = 25
+board = [Int](repeating: 0, count: finalSquare + 1)
+board[03] = +08; board[06] = +11; board[09] = +09; board[10] = +02
+board[14] = -10; board[19] = -11; board[22] = -02; board[24] = -08
+square = 0
+diceRoll = 0
+
+gameLoop: while square != finalSquare {
+    diceRoll += 1
+    if diceRoll == 7 { diceRoll = 1 }
+    switch square + diceRoll {
+    case finalSquare:
+        // diceRoll will move us to the final square, so the game is over
+        break gameLoop
+    case let newSquare where newSquare > finalSquare:
+        // diceRoll will move us beyond the final square, so roll again
+        continue gameLoop
+    default:
+        // this is a valid move, so find out its effect
+        square += diceRoll
+        square += board[square]
+    }
+}
+print("Game over!")
+
+
+/*
+ Checking API Availability
+ */
+if #available(iOS 10, macOS 10.12, *) {
+    // Use iOS 10 APIs on iOS, and use macOS 10.12 APIs on macOS
+} else {
+    // Fall back to earlier iOS and macOS APIs
+}
