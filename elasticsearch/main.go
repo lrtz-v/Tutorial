@@ -1,24 +1,22 @@
 package main
 
 import (
-	"fmt"
+	"context"
+	"elasticsearch/src/book"
+	"elasticsearch/src/config"
+	"log"
 )
-
-func uploadBooks() {
-    // books := getBooks()
-    // client := config.NewEsClient()
-}
 
 
 func main() {
-	books := book.getBooks()	
-	for _, book := range books {
-		t := book.Type
-		if _, ok := typeMap[t]; ok {
-			typeMap[t]++
-		} else {
-			typeMap[t] = 1
-		}
+	ctx := context.Background()
+	
+	client := config.NewEsClient()
+	defer client.Stop()
+
+	for i := 1; i < 2394; i++ {
+		b := book.GetBookWithID(ctx, client, i)
+		log.Println(b)
 	}
-	fmt.Printf(typeMap)
+
 }

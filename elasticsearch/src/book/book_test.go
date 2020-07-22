@@ -5,7 +5,7 @@ import (
 )
 
 func TestGetBooks(t *testing.T) {
-	books := getBooks()
+	books := GetBooks()
 	typeMap := make(map[string]int)
 
 	for _, book := range books {
