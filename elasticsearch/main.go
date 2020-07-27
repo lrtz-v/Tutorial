@@ -10,13 +10,16 @@ import (
 
 func main() {
 	ctx := context.Background()
-	
-	client := config.NewEsClient()
-	defer client.Stop()
 
-	for i := 1; i < 2394; i++ {
-		b := book.GetBookWithID(ctx, client, i)
-		log.Println(b)
+	esConfig := config.GetEsInstance(book.Index)
+	defer esConfig.Stop()
+
+	// b := book.GetBookWithID(ctx, esConfig, 100)
+	// log.Println(b.Name)
+
+	books := book.GetBookWithName(ctx, esConfig, "忏悔录")
+	for _, v := range books {
+		log.Println(v.Name)
 	}
 
 }

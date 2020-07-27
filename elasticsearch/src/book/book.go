@@ -9,40 +9,16 @@ import (
 	"strings"
 	"time"
 
+	"elasticsearch/src/config"
+
 	elastic "github.com/olivere/elastic/v7"
 )
 
-const mapping = `
-{
-	"settings":{
-		"number_of_shards": 1,
-		"number_of_replicas": 0
-	},
-	"mappings":{
-		"books":{
-			"properties":{
-                "id": {
-                    "type": "long"
-                },
-				"name":{
-					"type":"keyword"
-				},
-				"created":{
-					"type":"date"
-				},
-				"type":{
-					"type":"keyword"
-				},
-				"size":{
-					"type":"long"
-				}
-			}
-		}
-	}
-}`
-
 // DIR of files
-const DIR = "./mybooks"
+const (
+	DIR = "./mybooks"
+	Index = "books"
+)
 
 // Book define struct of books
 type Book struct {
@@ -51,6 +27,27 @@ type Book struct {
     Type string `json:"type"`
     Size int64 `json:"size"`
     Created time.Time `json:"Created"`
+}
+
+// Unmarshal decode source
+func Unmarshal(source json.RawMessage) *Book {
+	var book Book
+	err := json.Unmarshal(source, &book)
+	if err != nil {
+		log.Fatalln("[*]Source Unmarshal Failed")
+		panic(err)
+	}
+	return &book
+}
+
+// Marshal encode source
+func Marshal(book Book) []byte {
+	bytes, err := json.Marshal(book)
+	if err != nil {
+		log.Fatalln("[*]Book Marshal Failed")
+		panic(err)
+	}
+	return bytes
 }
 
 // GetBooks return all books in $DIR
@@ -77,44 +74,38 @@ func GetBooks() []Book {
 }
 
 // UploadBooks upload books to es
-func UploadBooks(ctx context.Context, client *elastic.Client) {
+func UploadBooks(ctx context.Context, esConfig *config.EsClient) {
 	// indexCheck(ctx, client)
 	books := GetBooks()
 
 	for _, book := range books {
-		info, err := client.Index().
-			Index("books").
-			Id(strconv.Itoa(int(book.ID))).
-			BodyJson(book).
-			Do(ctx)
-		if err != nil {
-			log.Fatalf("Indexed Failed, %d", book.ID)
-			panic(err)
-		}
-		log.Printf("Indexed books %s to index %s\n", info.Id, info.Index)
+		esConfig.Indexs(ctx, strconv.Itoa(int(book.ID)), Marshal(book))
 	}
 }
 
 // GetBookWithID query book by bookId
-func GetBookWithID(ctx context.Context, client *elastic.Client, id int) Book {
-	res, err := client.Get().
-		Index("books").
-		Id(strconv.Itoa(id)).
-		Do(ctx)
+func GetBookWithID(ctx context.Context, esConfig *config.EsClient, id int) *Book {
+	res, err := esConfig.QueryWithID(ctx, strconv.Itoa(id))
 	if err != nil {
-		log.Fatalf("[*]GetBookWithID Failed, %d", id)
+		log.Fatalf("[*]GetBookWithID Failed, id: %d\n", id)
 		panic(err)
 	}
-	if res.Found {
-		log.Printf("Got document %s in version %d from index %s\n", res.Id, res.Version, res.Index)
+	if !res.Found {
+		log.Fatalf("[*]GetBookWithID Found Empty, id: %d\n", id)
 	}
 
-	var book Book
+	return Unmarshal(res.Source)
+}
 
-	err = json.Unmarshal(res.Source, &book)
-	if err != nil {
-		log.Fatalln("[*]Source Unmarshal Failed")
-		panic(err)
+// GetBookWithName query books with name book name
+func GetBookWithName(ctx context.Context, esConfig *config.EsClient, name string) []*Book {
+	query := elastic.NewBoolQuery()
+	query.Must(elastic.NewTermQuery("name.keyword", name))
+
+	hits := esConfig.Query(ctx, query)
+	books := make([]*Book, len(hits))
+	for i, v := range hits {
+		books[i] = Unmarshal(v.Source)
 	}
-	return book
+	return books
 }
