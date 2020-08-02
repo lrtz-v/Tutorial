@@ -26,9 +26,10 @@ func NewEsClient() *elastic.Client {
 }
 
 // GetEsInstance return instance of connection to es
-func GetEsInstance(index string) *EsClient {
+func GetEsInstance(ctx context.Context, index string) *EsClient {
 	client := EsClient{Index: index}
 	client.Client = NewEsClient()
+	client.CreateIndex(ctx)
 	return &client
 }
 
@@ -56,11 +57,72 @@ func (e *EsClient) Query(ctx context.Context, query *elastic.BoolQuery) ([]*elas
 }
 
 // Indexs create document
-func (e *EsClient) Indexs(ctx context.Context, ID string, body interface{}) {
+func (e *EsClient) Indexs(ctx context.Context, body interface{}) {
 	info, err := e.Client.Index().Index(e.Index).BodyJson(body).Do(ctx)
 	if err != nil {
-		log.Fatalf("Indexs Failed!, ID: %s\n", ID)
+		log.Fatalf("Indexs Failed!, body: %s\n", body)
 		panic(err)
 	}
 	log.Printf("Indexed books %s to index %s\n", info.Id, info.Index)
+}
+
+// BulkInsert multi insert
+func (e *EsClient) BulkInsert(ctx context.Context, body []interface{}) {
+	bulkRequest := e.Client.Bulk()
+	for _, v := range body {
+		req := elastic.NewBulkIndexRequest().Index(e.Index).Doc(v)
+		bulkRequest = bulkRequest.Add(req)
+	}
+	_, err := bulkRequest.Do(ctx)
+	if err != nil {
+		log.Printf("BulkInsert Failed, err: %s", err)
+		panic(err)
+	}
+}
+
+// CreateIndex create index if not exist
+func (e *EsClient) CreateIndex(ctx context.Context) bool {
+	exist, err := e.Client.IndexExists(e.Index).Do(ctx)
+	if err != nil {
+		log.Fatalf("Check Index exists failed, err: %s", err)
+		panic(err)
+	}
+	if exist {
+		return true
+	}
+	res, err := e.Client.CreateIndex(e.Index).Do(ctx)
+	if err != nil {
+		log.Fatalf("Create Index failed, err: %s", err)
+		panic(err)
+	}
+	if !res.Acknowledged {
+		log.Println("Create Index failed")
+		return false
+	}
+	return true
+}
+
+// CreateMapping add mapping
+func (e *EsClient) CreateMapping(ctx context.Context, mapping string) {
+	res, err := e.Client.PutMapping().Index(e.Index).BodyString(mapping).Do(ctx)
+	if err != nil {
+        log.Printf("CreateMapping Failed: %s", err)
+        panic(err)
+	}
+	
+	if !res.Acknowledged {
+		log.Println("CreateMapping Failed")
+		panic("CreateMapping Failed")
+	}
+}
+
+// GetMapping return mapping of index
+func (e *EsClient) GetMapping(ctx context.Context) map[string]interface{} {
+	res, err := e.Client.GetMapping().Index(e.Index).Do(ctx)
+	if err != nil {
+        log.Printf("GetMapping Failed: %s", err)
+        panic(err)
+	}
+	
+	return res
 }

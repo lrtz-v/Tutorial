@@ -26,7 +26,7 @@ type Book struct {
     Name string `json:"name"`
     Type string `json:"type"`
     Size int64 `json:"size"`
-    Created time.Time `json:"Created"`
+    Created time.Time `json:"created"`
 }
 
 // Unmarshal decode source
@@ -62,7 +62,7 @@ func GetBooks() []Book {
     for i := 0; i < len(files); i++ {
         t := strings.Split(files[i].Name(), ".")
         books[i] = Book{
-            ID: int64(i),
+            ID: int64(i+1),
             Name: strings.Join(t[0:len(t)-1], "."), 
             Type: t[len(t)-1],
             Size: files[i].Size(), 
@@ -75,11 +75,9 @@ func GetBooks() []Book {
 
 // UploadBooks upload books to es
 func UploadBooks(ctx context.Context, esConfig *config.EsClient) {
-	// indexCheck(ctx, client)
 	books := GetBooks()
-
 	for _, book := range books {
-		esConfig.Indexs(ctx, strconv.Itoa(int(book.ID)), Marshal(book))
+		esConfig.Indexs(ctx, book)
 	}
 }
 

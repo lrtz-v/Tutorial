@@ -11,8 +11,10 @@ import (
 func main() {
 	ctx := context.Background()
 
-	esConfig := config.GetEsInstance(book.Index)
+	esConfig := config.GetEsInstance(ctx, book.Index)
 	defer esConfig.Stop()
+
+	book.UploadBooks(ctx, esConfig)
 
 	// b := book.GetBookWithID(ctx, esConfig, 100)
 	// log.Println(b.Name)
