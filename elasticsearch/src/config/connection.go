@@ -145,3 +145,12 @@ func (e *EsClient) DeleteIndex(ctx context.Context) {
 		panic(err)
 	}
 }
+
+// Explain query dsl
+func (e *EsClient) Explain(ctx context.Context, query *elastic.BoolQuery) []*elastic.SearchHit {
+	res, err := e.Client.Search().Index(e.Index).Query(query).Explain(true).Do(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return res.Hits.Hits
+}

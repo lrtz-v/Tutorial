@@ -73,6 +73,7 @@ func TestGetBookWithName(t *testing.T) {
 	if books == nil || len(books) == 0 {
 		t.Fatal("Test GetBookWithName Error.")
 	}
+
 }
 
 func TestCreateIndexAndMapping(t *testing.T) {
