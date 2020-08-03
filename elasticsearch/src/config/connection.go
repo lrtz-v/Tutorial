@@ -10,7 +10,7 @@ import (
 // EsClient is defintion of es connection management
 type EsClient struct {
 	Client *elastic.Client
-	Index string
+	Index  string
 }
 
 // NewEsClient return new connection to es
@@ -23,6 +23,16 @@ func NewEsClient() *elastic.Client {
 		panic(err)
 	}
 	return client
+}
+
+// Ping specify url
+func (e *EsClient) Ping(ctx context.Context, url string) (*elastic.PingResult, int) {
+	info, code, err := e.Client.Ping("http://127.0.0.1:9200").Do(ctx)
+	if err != nil {
+		log.Fatalf("Ping [%s] Error!", url)
+		panic(err)
+	}
+	return info, code
 }
 
 // GetEsInstance return instance of connection to es
@@ -48,7 +58,7 @@ func (e *EsClient) QueryWithID(ctx context.Context, id string) (*elastic.GetResu
 }
 
 // Query use DSL to query
-func (e *EsClient) Query(ctx context.Context, query *elastic.BoolQuery) ([]*elastic.SearchHit) {
+func (e *EsClient) Query(ctx context.Context, query *elastic.BoolQuery) []*elastic.SearchHit {
 	res, err := e.Client.Search().Index(e.Index).Query(query).Do(ctx)
 	if err != nil {
 		panic(err)
@@ -106,10 +116,10 @@ func (e *EsClient) CreateIndex(ctx context.Context) bool {
 func (e *EsClient) CreateMapping(ctx context.Context, mapping string) {
 	res, err := e.Client.PutMapping().Index(e.Index).BodyString(mapping).Do(ctx)
 	if err != nil {
-        log.Printf("CreateMapping Failed: %s", err)
-        panic(err)
+		log.Printf("CreateMapping Failed: %s", err)
+		panic(err)
 	}
-	
+
 	if !res.Acknowledged {
 		log.Println("CreateMapping Failed")
 		panic("CreateMapping Failed")
@@ -120,9 +130,9 @@ func (e *EsClient) CreateMapping(ctx context.Context, mapping string) {
 func (e *EsClient) GetMapping(ctx context.Context) map[string]interface{} {
 	res, err := e.Client.GetMapping().Index(e.Index).Do(ctx)
 	if err != nil {
-        log.Printf("GetMapping Failed: %s", err)
-        panic(err)
+		log.Printf("GetMapping Failed: %s", err)
+		panic(err)
 	}
-	
+
 	return res
 }

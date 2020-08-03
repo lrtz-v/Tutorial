@@ -2,27 +2,26 @@ package config
 
 import (
 	"context"
-	"log"
 	"testing"
+
+	"elasticsearch/src/book"
 )
 
 func TestConnection(t *testing.T) {
-
 	ctx := context.Background()
-	
-	client := NewEsClient()
-	defer client.Stop()
 
-	info, code, err := client.Ping("http://127.0.0.1:9200").Do(ctx)
-	if err != nil {
-		t.Fatal("Ping Error!")
-	}
+	esConfig := GetEsInstance(ctx, book.Index)
+	defer esConfig.Stop()
 
-	log.Printf("Elasticsearch returned with code %d and version %s\n", code, info.Version.Number)
+	esConfig.Ping("http://127.0.0.1:9200")
+}
 
-	esversion, err := client.ElasticsearchVersion("http://127.0.0.1:9200")
-	if err != nil {
-		t.Fatal("Version check Error!")
-	}
-	log.Printf("Elasticsearch version %s\n", esversion)
+func TestQueryWithID(t *testing.T) {
+	ctx := context.Background()
+
+	esConfig := GetEsInstance(ctx, book.Index)
+	defer esConfig.Stop()
+
+	QueryWithID(ctx, "XVSFDBXHHSBJXBNSU")
+
 }
