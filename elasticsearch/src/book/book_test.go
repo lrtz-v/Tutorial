@@ -69,8 +69,21 @@ func TestGetBookWithName(t *testing.T) {
 	esConfig := config.GetEsInstance(ctx, Index)
 	defer esConfig.Stop()
 
-	books := GetBookWithName(ctx, esConfig, "1984")
+	books := GetBookWithName(ctx, esConfig, "中国")
 	if books == nil || len(books) == 0 {
 		t.Fatal("Test GetBookWithName Error.")
 	}
+}
+
+func TestCreateIndexAndMapping(t *testing.T) {
+	ctx := context.Background()
+
+	esConfig := config.GetEsInstance(ctx, Index)
+	defer esConfig.Stop()
+
+	res := esConfig.CreateIndex(ctx)
+	if !res {
+		t.Fatal("TestCreateIndexAndMapping Failed")
+	}
+	esConfig.CreateMapping(ctx, Mapping)
 }

@@ -136,3 +136,12 @@ func (e *EsClient) GetMapping(ctx context.Context) map[string]interface{} {
 
 	return res
 }
+
+// DeleteIndex delete index
+func (e *EsClient) DeleteIndex(ctx context.Context) {
+	_, err := e.Client.DeleteIndex(e.Index).Do(ctx)
+	if err != nil {
+		log.Fatalf("Delete Index [%s] Failed.", e.Index)
+		panic(err)
+	}
+}

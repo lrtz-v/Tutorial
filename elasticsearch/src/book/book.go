@@ -64,7 +64,7 @@ func GetBooks() []Book {
         books[i] = Book{
             ID: int64(i+1),
             Name: strings.Join(t[0:len(t)-1], "."), 
-            Type: t[len(t)-1],
+            Type: strings.ToLower(t[len(t)-1]),
             Size: files[i].Size(), 
             Created: files[i].ModTime(),
         }
@@ -110,7 +110,7 @@ func GetBookWithBookID(ctx context.Context, esConfig *config.EsClient, id int) *
 // GetBookWithName query books with name book name
 func GetBookWithName(ctx context.Context, esConfig *config.EsClient, name string) []*Book {
 	query := elastic.NewBoolQuery()
-	query.Must(elastic.NewTermQuery("name.keyword", name))
+	query.Must(elastic.NewTermQuery("name", name))
 
 	hits := esConfig.Query(ctx, query)
 	books := make([]*Book, len(hits))
