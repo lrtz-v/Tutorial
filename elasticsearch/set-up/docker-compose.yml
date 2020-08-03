@@ -1,4 +1,4 @@
-version: '2.2'
+version: '3.8'
 services:
   es01:
     image: es_analysis:7.8.0
@@ -16,7 +16,7 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - data01:/usr/share/elasticsearch/data
+      - /tmp/elasticsearch:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
     networks:
@@ -37,17 +37,9 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - data02:/usr/share/elasticsearch/data
+      - /tmp/elasticsearch:/usr/share/elasticsearch/data
     networks:
       - elastic
-
-volumes:
-  data01: 
-    external: true
-    name: elasticsearch
-  data02: 
-    external: true
-    name: elasticsearch
 
 networks:
   elastic:

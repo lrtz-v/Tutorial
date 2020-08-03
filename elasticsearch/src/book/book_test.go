@@ -45,9 +45,21 @@ func TestGetBookWithID(t *testing.T) {
 	esConfig := config.GetEsInstance(ctx, Index)
 	defer esConfig.Stop()
 
-	book := GetBookWithID(ctx, esConfig, 1)
+	book := GetBookWithID(ctx, esConfig, "E79ktHMB--pMjvYfOjDB")
 	if book == nil {
 		t.Fatal("Test GetBookWithID Error.")
+	}
+}
+
+func TestGetBookWithBookID(t *testing.T) {
+	ctx := context.Background()
+
+	esConfig := config.GetEsInstance(ctx, Index)
+	defer esConfig.Stop()
+
+	book := GetBookWithBookID(ctx, esConfig, 1)
+	if book == nil {
+		t.Fatal("TestGetBookWithBookID Error.")
 	}
 }
 

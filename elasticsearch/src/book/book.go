@@ -81,18 +81,30 @@ func UploadBooks(ctx context.Context, esConfig *config.EsClient) {
 	}
 }
 
-// GetBookWithID query book by bookId
-func GetBookWithID(ctx context.Context, esConfig *config.EsClient, id int) *Book {
-	res, err := esConfig.QueryWithID(ctx, strconv.Itoa(id))
+// GetBookWithID query book by _id
+func GetBookWithID(ctx context.Context, esConfig *config.EsClient, id string) *Book {
+	res, err := esConfig.QueryWithID(ctx, id)
 	if err != nil {
-		log.Fatalf("[*]GetBookWithID Failed, id: %d\n", id)
+		log.Fatalf("[*]GetBookWithID Failed, _id: %s\n", id)
 		panic(err)
 	}
 	if !res.Found {
-		log.Fatalf("[*]GetBookWithID Found Empty, id: %d\n", id)
+		log.Fatalf("[*]GetBookWithID Found Empty, _id: %s\n", id)
 	}
 
 	return Unmarshal(res.Source)
+}
+
+// GetBookWithBookID query book by bookId
+func GetBookWithBookID(ctx context.Context, esConfig *config.EsClient, id int) *Book {
+	query := elastic.NewBoolQuery()
+	query.Must(elastic.NewTermQuery("id", strconv.Itoa(id)))
+	
+	hits := esConfig.Query(ctx, query)
+	if len(hits) == 0 {
+		return nil
+	}
+	return Unmarshal(hits[0].Source)
 }
 
 // GetBookWithName query books with name book name

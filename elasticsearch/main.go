@@ -12,4 +12,6 @@ func main() {
 	esConfig := config.GetEsInstance(ctx, book.Index)
 	defer esConfig.Stop()
 
+	book.UploadBooks(ctx, esConfig)
+
 }
