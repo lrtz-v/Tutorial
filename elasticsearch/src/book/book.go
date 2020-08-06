@@ -107,10 +107,23 @@ func GetBookWithBookID(ctx context.Context, esConfig *config.EsClient, id int) *
 	return Unmarshal(hits[0].Source)
 }
 
-// GetBookWithName query books with name book name
-func GetBookWithName(ctx context.Context, esConfig *config.EsClient, name string) []*Book {
+// QueryBookWithName query books with book name
+func QueryBookWithName(ctx context.Context, esConfig *config.EsClient, name string) []*Book {
 	query := elastic.NewBoolQuery()
 	query.Must(elastic.NewTermQuery("name", name))
+
+	hits := esConfig.Query(ctx, query)
+	books := make([]*Book, len(hits))
+	for i, v := range hits {
+		books[i] = Unmarshal(v.Source)
+	}
+	return books
+}
+
+// QueryBookWithTermName get books with term book name
+func QueryBookWithTermName(ctx context.Context, esConfig *config.EsClient, name string) []*Book {
+	query := elastic.NewBoolQuery()
+	query.Must(elastic.NewTermQuery("name.raw", name))
 
 	hits := esConfig.Query(ctx, query)
 	books := make([]*Book, len(hits))
