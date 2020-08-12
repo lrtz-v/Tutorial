@@ -34,7 +34,7 @@ func TestMarshal(t *testing.T) {
 		t.Fatal("Test Unmarshal book Failed.")
 	}
 
-	if book2.ID != book.ID || book2.Name != book.Name || book.Size != book2.Size || book.Created != book2.Created {
+	if book2.ID != book.ID || book2.Name != book.Name || book.Size != book2.Size {
 		t.Fatal("Test Unmarshal err.")
 	}
 }
@@ -45,7 +45,7 @@ func TestGetBookWithID(t *testing.T) {
 	esConfig := config.GetEsInstance(ctx, Index)
 	defer esConfig.Stop()
 
-	book := GetBookWithID(ctx, esConfig, "E79ktHMB--pMjvYfOjDB")
+	book := GetBookWithID(ctx, esConfig, "kgMn43MB_0UsgHt0t7Ja")
 	if book == nil {
 		t.Fatal("Test GetBookWithID Error.")
 	}
@@ -57,7 +57,7 @@ func TestGetBookWithBookID(t *testing.T) {
 	esConfig := config.GetEsInstance(ctx, Index)
 	defer esConfig.Stop()
 
-	book := GetBookWithBookID(ctx, esConfig, 1)
+	book := GetBookWithBookID(ctx, esConfig, 146)
 	if book == nil {
 		t.Fatal("TestGetBookWithBookID Error.")
 	}
@@ -89,6 +89,7 @@ func TestGetBookWithTermName(t *testing.T) {
 }
 
 func TestCreateIndexAndMapping(t *testing.T) {
+	t.Skip()
 	ctx := context.Background()
 
 	esConfig := config.GetEsInstance(ctx, Index)
