@@ -3,21 +3,17 @@ package book
 import (
 	"context"
 	"elasticsearch/src/config"
+	"encoding/json"
+	"io/ioutil"
+	"strings"
 	"testing"
 	"time"
 )
 
 func TestGetBooks(t *testing.T) {
 	books := GetBooks()
-	typeMap := make(map[string]int)
-
-	for _, book := range books {
-		t := book.Type
-		if _, ok := typeMap[t]; ok {
-			typeMap[t]++
-		} else {
-			typeMap[t] = 1
-		}
+	if len(books) == 0 {
+		t.Fatal("[*] Gor Empty Book List.")
 	}
 }
 
@@ -100,4 +96,26 @@ func TestCreateIndexAndMapping(t *testing.T) {
 		t.Fatal("TestCreateIndexAndMapping Failed")
 	}
 	esConfig.CreateMapping(ctx, Mapping)
+}
+
+func TestSaveBooksToJsonFile(t *testing.T) {
+	files, err := ioutil.ReadDir(DIR)
+	if err != nil {
+		t.Fatal("[*] Read Dir Failed.")
+	}
+    books := make([]Book, len(files))
+
+    for i := 0; i < len(files); i++ {
+        t := strings.Split(files[i].Name(), ".")
+        books[i] = Book{
+            ID: int64(i+1),
+            Name: strings.Join(t[0:len(t)-1], "."), 
+            Type: strings.ToLower(t[len(t)-1]),
+            Size: files[i].Size(), 
+            Created: files[i].ModTime(),
+        }
+    }
+
+	file, _ := json.MarshalIndent(books, "", " ")
+	_ = ioutil.WriteFile(JSONFileDir, file, 0644)
 }

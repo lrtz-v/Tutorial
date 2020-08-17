@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"elasticsearch/src/config"
@@ -16,6 +16,7 @@ import (
 
 // DIR of files
 const (
+	JSONFileDir = "./books.json"
 	DIR = "./mybooks"
 	Index = "books"
 )
@@ -52,25 +53,16 @@ func Marshal(book Book) []byte {
 
 // GetBooks return all books in $DIR
 func GetBooks() []Book {
-	files, err := ioutil.ReadDir(DIR)
-    if err != nil {
-        panic(err)
-    }
-
-    books := make([]Book, len(files))
-
-    for i := 0; i < len(files); i++ {
-        t := strings.Split(files[i].Name(), ".")
-        books[i] = Book{
-            ID: int64(i+1),
-            Name: strings.Join(t[0:len(t)-1], "."), 
-            Type: strings.ToLower(t[len(t)-1]),
-            Size: files[i].Size(), 
-            Created: files[i].ModTime(),
-        }
-    }
-
-    return books
+	jsonFile, err := os.Open(JSONFileDir)
+	defer jsonFile.Close()
+	if err != nil {
+		log.Fatalln("[*]TestPaserJsonFile Failed")
+		panic(err)
+	}
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	books := []Book{}
+	json.Unmarshal(byteValue, &books)
+	return books
 }
 
 // UploadBooks upload books to es
