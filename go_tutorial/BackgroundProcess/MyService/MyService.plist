@@ -1,0 +1,15 @@
+<?xml version=‘1.0’ encoding=‘UTF-8’?>
+<!DOCTYPE plist PUBLIC \“-//Apple Computer//DTD PLIST 1.0//EN\” \”http://www.apple.com/DTDs/PropertyList-1.0.dtd\” >
+<plist version=‘1.0’>
+<dict>
+<key>Label</key><string>My Service</string>
+<key>ProgramArguments</key>
+<array>
+<string>/your_dir/MyService/MyService</string>
+</array>
+<key>WorkingDirectory</key><string>/your_dir/MyService</string>
+<key>StandardOutPath</key><string>/your_dir/MyService/MyService.log</string>
+<key>KeepAlive</key><true/>
+<key>Disabled</key><false/>
+</dict>
+</plist>
