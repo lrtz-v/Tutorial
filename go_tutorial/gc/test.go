@@ -28,5 +28,5 @@ func main() {
 
 /*
 go build -gcflags "-l" -o test test.go
-GODEBUG="gctrace=1" ./test
+GODEBUG="gctrace=1,gcpacertrace=1" ./test
 */
