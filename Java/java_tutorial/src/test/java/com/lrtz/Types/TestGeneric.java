@@ -5,6 +5,8 @@ import org.junit.Test;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author lvtao
@@ -13,6 +15,13 @@ import java.util.Date;
  *
  *
  * 泛型一般有三种使用方式:泛型类、泛型接口、泛型方法
+ *
+ * 经常用T、E、K、V等形式的参数来表示泛型参数
+ * T：代表一般的任何类
+ * E：代表 Element 的意思，或者 Exception 异常的意思
+ * K：代表 Key 的意思
+ * V：代表 Value 的意思，通常与 K 一起配合使用
+ * N: Number
  *
  */
 
@@ -116,6 +125,8 @@ public class TestGeneric {
         DateInter dateInter = new DateInter();
         dateInter.setValue(new Date());
 //        dateInter.setValue(new Object()); //编译错误
+
+        Map m = new HashMap<>();
     }
 
 
