@@ -24,7 +24,7 @@ type server struct {
 
 // Ping
 func (s *server) Ping(ctx context.Context, in *pb.PingRequest) (*pb.PingResponse, error) {
-	return &pb.PingResponse{Ok:true}, status.New(codes.OK, "").Err()
+	return &pb.PingResponse{Ok: true}, status.New(codes.OK, "").Err()
 }
 
 // AddProduct implements ecommerce.AddProduct
