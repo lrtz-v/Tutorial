@@ -3,10 +3,7 @@ package com.lrtz.Types;
 import org.junit.Test;
 
 import java.util.Hashtable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.*;
 
 /**
  * @author lvtao
@@ -48,10 +45,20 @@ public class Concurrent {
 //        set new array
     }
 
+    /**
+     * 非阻塞队列
+     */
     @Test
     public void testConcurrentLinkedQueue() {
         ConcurrentLinkedQueue q = new ConcurrentLinkedQueue();
         q.add(1);
+    }
+
+    @Test
+    public void testBlockQueue() {
+        ArrayBlockingQueue q1 = new ArrayBlockingQueue(1);
+        LinkedBlockingQueue q2 = new LinkedBlockingQueue(1);
+        PriorityBlockingQueue q3 = new PriorityBlockingQueue(1);
     }
 
 }
