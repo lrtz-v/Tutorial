@@ -22,15 +22,12 @@ public class TestThreadLocalExample {
         ThreadLocal<String> ThreadLocal = new ThreadLocal<>();
         ThreadLocal.set("父类数据:threadLocal");
 
-        ThreadLocal<String> inheritableThreadLocal = new InheritableThreadLocal<>();
+        InheritableThreadLocal<String> inheritableThreadLocal = new InheritableThreadLocal<>();
         inheritableThreadLocal.set("父类数据:inheritableThreadLocal");
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("子线程获取父类`ThreadLocal`数据：" + ThreadLocal.get());
-                System.out.println("子线程获取父类inheritableThreadLocal数据：" + inheritableThreadLocal.get());
-            }
+        new Thread(() -> {
+            System.out.println("子线程获取父类`ThreadLocal`数据：" + ThreadLocal.get());
+            System.out.println("子线程获取父类inheritableThreadLocal数据：" + inheritableThreadLocal.get());
         }).start();
     }
 }
