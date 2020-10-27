@@ -15,13 +15,8 @@ WORKDIR /app
 RUN ["mkdir", "logs"]
 COPY . .
 
-# Favor ENTRYPOINT when you need to run the same command every time.
-# Favor ENTRYPOINT when a container will be used as an executable program.
-# Favor CMD when you need to provide extra default arguments that could be overwritten from the command line.
-ENTRYPOINT ["python", "app.py"]
-# CMD ["python", "./app.py"]
-
 # expose暴露容器给link到当前容器的容器，或者暴露给同一个networks的容器
-# EXPOSE 5000
+EXPOSE 80
+ENTRYPOINT ["python", "app.py"]
 
 # VOLUME /app
