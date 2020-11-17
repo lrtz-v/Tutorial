@@ -18,9 +18,8 @@ func increaseRandom() {
 	}
 }
 
-func reverseCursor(v uint64) uint64 {
-	CHAR_BIT := uint64(8)
-	s := CHAR_BIT * uint64(unsafe.Sizeof(v))
+func rev(v uint64) uint64 {
+	s := 8 * uint64(unsafe.Sizeof(v))
 	mask := uint64(0)
 	mask = ^mask
 	for {
@@ -34,17 +33,28 @@ func reverseCursor(v uint64) uint64 {
 	return v
 }
 
-func testReverseCurse(v uint64) {
-	m := uint64(2048)
-	v |= ^m
-	v = reverseCursor(v)
-	fmt.Println(v)
-	v++
-	fmt.Println(v)
-	v = reverseCursor(v)
-	fmt.Println(v)
+func dictScan(v uint64, tableSize uint64) {
+	m := tableSize - 1
+
+	fmt.Print(v)
+	for {
+		v |= ^m
+		v = rev(v)
+		v++
+		v = rev(v)
+
+		if v == 0 {
+			break
+		}
+		fmt.Printf(" ->- (%b|%d)", v, v)
+	}
+	fmt.Printf("\n")
 }
 
 func main() {
-	testReverseCurse(uint64(0))
+	dictScan(uint64(0), uint64(8))
+	// 0 ->- (100|4) ->- (10|2) ->- (110|6) ->- (1|1) ->- (101|5) ->- (11|3) ->- (111|7)
+
+	dictScan(uint64(0), uint64(16))
+	// 0 ->- (1000|8) ->- (100|4) ->- (1100|12) ->- (10|2) ->- (1010|10) ->- (110|6) ->- (1110|14) ->- (1|1) ->- (1001|9) ->- (101|5) ->- (1101|13) ->- (11|3) ->- (1011|11) ->- (111|7) ->- (1111|15)
 }
