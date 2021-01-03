@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: app-rs
+  labels:
+    app: app-rs
+    tier: app-rs
+spec:
+  # modify replicas according to your case
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: app-rs
+  template:
+    metadata:
+      labels:
+        tier: app-rs
+    spec:
+      containers:
+      - name: app
+        image: app:1.0.0
+        imagePullPolicy: Never
