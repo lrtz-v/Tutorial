@@ -1,6 +1,6 @@
 BINARY_NAME=app
 
-VERSION ?= "1.0.0"
+VERSION ?= "1.0.3"
 PKGS := $(shell go list ./...)
 
 lint:
