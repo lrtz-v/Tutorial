@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
-  name: app-rs
+  name: frontend
   labels:
-    app: app-rs
-    tier: app-rs
+    app: guestbook
+    tier: frontend
 spec:
-  # modify replicas according to your case
   replicas: 3
   selector:
     matchLabels:
-      tier: app-rs
+      tier: frontend
   template:
     metadata:
       labels:
-        tier: app-rs
+        tier: frontend
     spec:
       containers:
       - name: app
         image: app:1.0.0
         imagePullPolicy: Never
+
