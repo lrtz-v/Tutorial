@@ -9,11 +9,11 @@ lint:
 test:
 	go test -v $(PKGS)
 
-run: 
+run:
 	go build -o $(BINARY_NAME) . && ./$(BINARY_NAME)
 
 image:
 	docker build -t $(BINARY_NAME):$(VERSION) .
 
-clean: 
+clean:
 	rm app
