@@ -1,21 +1,21 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: ReplicaSet
 metadata:
-  name: app-deployment
+  name: frontend
   labels:
-    app: app
+    app: guestbook
+    tier: frontend
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: app
+      tier: frontend
   template:
     metadata:
       labels:
-        app: app
+        tier: frontend
     spec:
       containers:
       - name: app
         image: app:1.0.0
-        ports:
-        - containerPort: 8080
+        imagePullPolicy: Never

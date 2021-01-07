@@ -1,22 +1,18 @@
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
-  name: frontend
-  labels:
-    app: guestbook
-    tier: frontend
+  name: my-repset
 spec:
   replicas: 3
   selector:
     matchLabels:
-      tier: frontend
+      pod-is-for: garbage-collection-example
   template:
     metadata:
       labels:
-        tier: frontend
+        pod-is-for: garbage-collection-example
     spec:
       containers:
       - name: app
         image: app:1.0.0
         imagePullPolicy: Never
-
