@@ -1,6 +1,10 @@
 BINARY_NAME=app
 
-VERSION ?= "1.0.3"
+version = $(v)
+ifndef version
+	version = "1.0.0"
+endif
+
 PKGS := $(shell go list ./...)
 
 lint:
@@ -13,7 +17,7 @@ run:
 	go build -o $(BINARY_NAME) . && ./$(BINARY_NAME)
 
 image:
-	docker build -t $(BINARY_NAME):$(VERSION) .
+	docker build -t $(BINARY_NAME):$(version) .
 
 clean:
 	rm app
