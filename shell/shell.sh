@@ -29,7 +29,6 @@ echo "my name is ${name}"
 echo 'my name is ${name}'
 
 # get string length 
-var_length=
 echo "string length: ${#name2}"
 
 # substring
