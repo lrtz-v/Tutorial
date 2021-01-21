@@ -1,4 +1,4 @@
-package beverage;
+package template;
 
 /**
  * @author lrtz

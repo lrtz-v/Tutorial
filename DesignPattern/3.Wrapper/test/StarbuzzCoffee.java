@@ -1,8 +1,8 @@
 package test;
 
-import beverage.Beverage;
-import beverage.DarkRoast;
-import beverage.Espresso;
+import template.Beverage;
+import template.DarkRoast;
+import template.Espresso;
 import condiment.Mocha;
 
 /**

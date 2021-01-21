@@ -1,6 +1,6 @@
 package condiment;
 
-import beverage.Beverage;
+import template.Beverage;
 
 /**
  * @author lrtz
