@@ -5,14 +5,15 @@ import command.NoCommand;
 
 /**
  * @author lvtao03
- * @date 2021/1/20
+ * @date 2021/1/21
  **/
-public class RemoteControl {
+public class RemoteControlWithUndo {
 
     Command[] onCommands;
     Command[] offCommands;
+    Command undoCommand;
 
-    public RemoteControl() {
+    public RemoteControlWithUndo() {
         onCommands = new Command[7];
         offCommands = new Command[7];
 
@@ -21,6 +22,8 @@ public class RemoteControl {
             onCommands[i] = noCommand;
             offCommands[i] = noCommand;
         }
+
+        undoCommand = noCommand;
     }
 
     public void setCommand(int slot, Command on, Command off) {
@@ -30,10 +33,16 @@ public class RemoteControl {
 
     public void onButtonWaePushed(int slot) {
         onCommands[slot].execute();
+        undoCommand = onCommands[slot];
     }
 
     public void offButtonWaePushed(int slot) {
         offCommands[slot].execute();
+        undoCommand = offCommands[slot];
+    }
+
+    public void undoButtonPushed() {
+        undoCommand.undo();
     }
 
     @Override
