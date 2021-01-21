@@ -12,25 +12,33 @@
 
 ## 策略模式
 
-- [Strategy case](1.Strategy)
+- [Strategy](1.Strategy)
 - 定义了算法族，分别封装起来，让他们可以互相替换，此模式让算法的变化独立于使用的客户
 
 ## 观察者模式
 
-- [Observer case](2.Observer)
+- [Observer](2.Observer)
 - 定义了对象之间的一对多依赖，当一个对象改变状态时，它的所有依赖者都会收到通知并自动更新
 
 ## 装饰器模式
 
-- [Wrapper case](3.Wrapper)
+- [Wrapper](3.Wrapper)
 - 动态地将责任附加到对象上，若要扩展功能，装饰者提供了比继承更有弹性的替代方案
 
 ## 工厂模式
 
-- [Factory case](4.Factory)
+- [Factory](4.Factory)
 - 定义了一个创建对象的接口，但由子类决定要实例化的类是哪一个，工厂方法让类把实例化推迟到子类
 
 ## 单例模式
 
-- [Singleton case]()
+- [Singleton](5.Singleton)
 - 确保一个类只有一个实例，并提供一个全局访问点
+
+## 命令模式
+
+- [Command](6.Command)
+
+
+
+
