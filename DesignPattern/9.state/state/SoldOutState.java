@@ -10,7 +10,7 @@ import gumball.GumballMachine;
  **/
 public class SoldOutState implements State {
 
-    private GumballMachine gumballMachine;
+    transient private GumballMachine gumballMachine;
 
     public SoldOutState(GumballMachine gumballMachine) {
         this.gumballMachine = gumballMachine;
@@ -34,5 +34,10 @@ public class SoldOutState implements State {
     @Override
     public void dispense() {
         System.out.println("Oos, sold out");
+    }
+
+    @Override
+    public String toString() {
+        return "sold out";
     }
 }

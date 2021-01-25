@@ -10,7 +10,7 @@ import gumball.GumballMachine;
  **/
 public class NoCoinState implements State {
 
-    private GumballMachine gumballMachine;
+    transient private GumballMachine gumballMachine;
 
     public NoCoinState(GumballMachine gumballMachine) {
         this.gumballMachine = gumballMachine;
@@ -35,5 +35,10 @@ public class NoCoinState implements State {
     @Override
     public void dispense() {
         System.out.println("insert coins first");
+    }
+
+    @Override
+    public String toString() {
+        return "Has no coin";
     }
 }

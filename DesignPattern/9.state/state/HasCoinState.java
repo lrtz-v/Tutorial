@@ -11,7 +11,7 @@ import java.util.Random;
  **/
 public class HasCoinState implements State {
 
-    private GumballMachine gumballMachine;
+    transient private GumballMachine gumballMachine;
     private Random randomWinner = new Random(System.currentTimeMillis());
 
     public HasCoinState(GumballMachine gumballMachine) {
@@ -43,5 +43,10 @@ public class HasCoinState implements State {
     @Override
     public void dispense() {
         System.out.println("no gumball dispensed");
+    }
+
+    @Override
+    public String toString() {
+        return "Has coin";
     }
 }

@@ -1,5 +1,8 @@
 package gumball;
 
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import remote.GumballMachineRemote;
 import state.HasCoinState;
 import state.NoCoinState;
 import state.SoldOutState;
@@ -11,13 +14,14 @@ import state.WinnerState;
  * @author lvtao03
  * @date 2021/1/25
  **/
-public class GumballMachine {
+public class GumballMachine extends UnicastRemoteObject implements GumballMachineRemote {
 
     private State soldState;
     private State soldOutState;
     private State hasCoinState;
     private State noCoinState;
     private State winnerState;
+    private String location;
 
     /**
      * 当前状态，初始为已售完
@@ -29,7 +33,8 @@ public class GumballMachine {
      */
     private int count = 0;
 
-    public GumballMachine(int numberGumballs) {
+    public GumballMachine(String location, int numberGumballs) throws RemoteException {
+        this.location = location;
         this.winnerState = new WinnerState(this);
         this.soldState = new SoldState(this);
         this.soldOutState = new SoldOutState(this);
@@ -78,6 +83,11 @@ public class GumballMachine {
         this.state = state;
     }
 
+    @Override
+    public State getState() throws RemoteException {
+        return state;
+    }
+
     public void insertCoin() {
         state.insertCoins();
     }
@@ -98,11 +108,17 @@ public class GumballMachine {
         }
     }
 
+    @Override
     public int getCount() {
         return count;
     }
 
     public State getWinnerState() {
         return winnerState;
+    }
+
+    @Override
+    public String getLocation() {
+        return location;
     }
 }

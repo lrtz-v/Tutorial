@@ -1,7 +1,8 @@
 package test;
 
 import gumball.GumballMachine;
-import java.lang.management.GarbageCollectorMXBean;
+import java.rmi.Naming;
+import java.rmi.RemoteException;
 
 /**
  * @author lvtao03
@@ -9,19 +10,25 @@ import java.lang.management.GarbageCollectorMXBean;
  **/
 public class GumballMachineTest {
 
-    public static void main(String[] args) {
-        GumballMachine gumballMachine = new GumballMachine(5);
+    public static void main(String[] args) throws RemoteException {
+        GumballMachine gumballMachine = new GumballMachine("", 5);
         System.out.println(gumballMachine);
+//
+//        gumballMachine.insertCoin();
+//        gumballMachine.turnCrank();
+//        System.out.println(gumballMachine);
+//
+//        gumballMachine.insertCoin();
+//        gumballMachine.turnCrank();
+//        gumballMachine.insertCoin();
+//        gumballMachine.turnCrank();
+//        System.out.println(gumballMachine);
 
-        gumballMachine.insertCoin();
-        gumballMachine.turnCrank();
-        System.out.println(gumballMachine);
-
-        gumballMachine.insertCoin();
-        gumballMachine.turnCrank();
-        gumballMachine.insertCoin();
-        gumballMachine.turnCrank();
-        System.out.println(gumballMachine);
+        try {
+            Naming.rebind("gumball", gumballMachine);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

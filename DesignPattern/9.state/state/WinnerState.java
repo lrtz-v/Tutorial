@@ -10,7 +10,7 @@ import gumball.GumballMachine;
  **/
 public class WinnerState implements State {
 
-    private GumballMachine gumballMachine;
+    transient private GumballMachine gumballMachine;
 
     public WinnerState(GumballMachine gumballMachine) {
         this.gumballMachine = gumballMachine;
@@ -45,5 +45,10 @@ public class WinnerState implements State {
                 gumballMachine.setState(gumballMachine.getSoldOutState());
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "winner";
     }
 }
