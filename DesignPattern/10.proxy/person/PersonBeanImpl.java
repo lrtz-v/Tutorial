@@ -1,5 +1,10 @@
 package person;
 
+import invocation.NonOwnerInvocationHandler;
+import invocation.OwnerInvocationHandler;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+
 /**
  * @author lvtao03
  * @date 2021/1/26
@@ -58,5 +63,21 @@ public class PersonBeanImpl implements PersonBean {
     public void setHotOrNotRating(int rating) {
         this.rating = rating;
         ratingCount++;
+    }
+
+    public PersonBean getOwnerProxy(PersonBean personBean) {
+        return (PersonBean) Proxy.newProxyInstance(
+            personBean.getClass().getClassLoader(),
+            personBean.getClass().getInterfaces(),
+            (InvocationHandler) new OwnerInvocationHandler(personBean)
+        );
+    }
+
+    public PersonBean getNonOwnerProxy(PersonBean personBean) {
+        return (PersonBean) Proxy.newProxyInstance(
+            personBean.getClass().getClassLoader(),
+            personBean.getClass().getInterfaces(),
+            (InvocationHandler) new NonOwnerInvocationHandler(personBean)
+        );
     }
 }
