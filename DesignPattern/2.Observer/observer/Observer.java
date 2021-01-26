@@ -13,5 +13,5 @@ public interface Observer {
      * @param humidity 湿度
      * @param pressure 气压
      */
-    public void update(float temp, float humidity, float pressure);
+    void update(float temp, float humidity, float pressure);
 }
