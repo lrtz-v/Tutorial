@@ -54,7 +54,7 @@ public class DuckSimulator {
     }
 
     /**
-     * 鸭子模拟器: 工厂 + 组合-管理一群鸭子
+     * 鸭子模拟器: 工厂 + 适配器 + 组合, 管理一群鸭子
      */
     private void simulator(AbstractDuckFactory duckFactory) {
         QuackAble mallardDuck = duckFactory.createMallarDuck();

@@ -31,4 +31,9 @@ public class RubberDuck implements QuackAble {
     public void notifyObservers() {
         observable.notifyObservers();
     }
+
+    @Override
+    public String toString() {
+        return "RubberDuck";
+    }
 }

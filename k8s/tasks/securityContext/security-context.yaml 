@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  securityContext:
+    runAsUser: 1000 #runAsUser 字段指定 Pod 中的所有容器内的进程都使用用户 ID 1000 来运行
+    runAsGroup: 3000 # runAsGroup 字段指定所有容器中的进程都以主组 ID 3000 来运行
+    fsGroup: 2000 # 容器中所有进程也会是附组 ID 2000 的一部分
+  volumes:
+  - name: sec-ctx-vol
+    emptyDir: {}
+  containers:
+  - name: sec-ctx-demo
+    image: busybox
+    command: [ "sh", "-c", "sleep 1h" ]
+    volumeMounts:
+    - name: sec-ctx-vol
+      mountPath: /data/demo # 卷 /data/demo 及在该卷中创建的任何文件的属主都会是组 ID 2000
+    securityContext:
+      allowPrivilegeEscalation: false
