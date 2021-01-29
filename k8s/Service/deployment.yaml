@@ -2,24 +2,25 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app
-  labels:
-    app: app
 spec:
-  replicas: 3
+  replicas: 4
   selector:
     matchLabels:
       app: app
+      tier: backend
   template:
     metadata:
       labels:
         app: app
+        tier: backend
     spec:
       containers:
       - name: app
         image: app:1.0.0
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         ports:
-          - containerPort: 8080
+          - name: http
+            containerPort: 8080
         resources:
           limits:
             cpu: 500m
