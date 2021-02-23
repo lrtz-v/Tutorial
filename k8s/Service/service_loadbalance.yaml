@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: app-svc
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: app
     tier: backend
@@ -11,4 +11,3 @@ spec:
   - protocol: TCP
     port: 8080
     targetPort: 8080
-    nodePort: 30001 
