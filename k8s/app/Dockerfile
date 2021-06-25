@@ -15,4 +15,5 @@ RUN go build -o app .
 FROM alpine:latest
 WORKDIR /root/
 COPY --from=build /app .
-CMD ["./app"]
+COPY start.sh .
+CMD ["sh", "start.sh"]

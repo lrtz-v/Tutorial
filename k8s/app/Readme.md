@@ -1,4 +1,3 @@
-
 # app server case
 
 - 为了学习 Kubernetes 工作资源使用姿势，我们自己定义一个服务，用来跟随官方文档的脚步，自己尝试
@@ -6,21 +5,13 @@
 
 ## 使用姿势
 
-- 
+- 服务启动：go run main.go
+- 通过浏览器访问：http://localhost:8080
 
-## Commands
+## 镜像打包
 
-```bash
-make test
+- make image v=1.0.0
 
-# run
-make run
+## 启动容器
 
-make image
-
-# clean
-make clean
-
-# run image
-docker run --rm -it -p 8080:8080 app:1.0.0
-```
+- docker run --rm -it -p 8080:8080 app:1.0.0
