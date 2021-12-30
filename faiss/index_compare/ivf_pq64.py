@@ -1,20 +1,26 @@
 import faiss
-import time
-from utils import timeit
 from index import Index
+from utils import timeit
 from dataset import Dataset, Dataset_10M, Dataset_50M
 from memory_profiler import profile
 import gc
 
 
-class Hnsw64(Index):
+class IvfPQ64(Index):
 
     index = None
+    nlist = 10000
+    nprobe = 100
 
     def __init__(self):
-        self.index = faiss.IndexHNSWFlat(self.d, 64, faiss.METRIC_L2)
-        self.index.hnsw.efConstruction = 80
-        self.index.hnsw.efSearch = 64
+        quantizer = faiss.IndexFlatL2(self.d)
+        self.index = faiss.IndexIVFPQ(quantizer, self.d, self.nlist, 64, 8)
+        self.index.nprobe = self.nprobe
+
+    @timeit
+    def train(self, xt: list):
+        self.index.train(xt)
+        assert self.index.is_trained
 
     @timeit
     def add(self, vector_list: list):
@@ -22,7 +28,9 @@ class Hnsw64(Index):
 
 
 def use(data_object: Dataset, index_file_name: str):
-    index = Hnsw64()
+    index = IvfPQ64()
+    index.train(data_object.get_train())
+
     for data in data_object.get_base_iterator():
         index.add(data)
         del data
@@ -37,10 +45,10 @@ def use(data_object: Dataset, index_file_name: str):
 if __name__ == "__main__":
     gc.disable()
     data = Dataset_10M()
-    use(data, "hnsw_10M.index")
+    use(data, "ivf_pq64_10M.index")
     del data
     gc.collect()
     data = Dataset_50M()
-    use(data, "hnsw_50M.index")
+    use(data, "ivf_pq64_50M.index")
     del data
     gc.collect()

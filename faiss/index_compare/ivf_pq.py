@@ -1,22 +1,21 @@
 import faiss
 from index import Index
 from utils import timeit
+from dataset import Dataset, Dataset_10M, Dataset_50M
+from memory_profiler import profile
+import gc
 
 
 class IvfPQ(Index):
 
     index = None
-    index_file_name = "ivf_pq.index"
-    datatype = "float32"
     nlist = 10000
-    d = 128
     nprobe = 100
-    top_k = 10
 
-    def __init__(self, d: int, nlist: int):
-        quantizer = faiss.IndexFlatL2(d)
-        self.index = faiss.IndexIVFPQ(quantizer, d, nlist, 16, 8)
-        self.index.nprobe = 100
+    def __init__(self):
+        quantizer = faiss.IndexFlatL2(self.d)
+        self.index = faiss.IndexIVFPQ(quantizer, self.d, self.nlist, 16, 8)
+        self.index.nprobe = self.nprobe
 
     @timeit
     def train(self, xt: list):
@@ -26,3 +25,30 @@ class IvfPQ(Index):
     @timeit
     def add(self, vector_list: list):
         self.index.add(vector_list)
+
+
+def use(data_object: Dataset, index_file_name: str):
+    index = IvfPQ()
+    index.train(data_object.get_train())
+
+    for data in data_object.get_base_iterator():
+        index.add(data)
+        del data
+        gc.collect()
+    xq = data_object.get_query()
+    nq, _ = xq.shape
+    index.query(xq, int(nq), data_object.get_groundtruth())
+    index.save(index_file_name)
+    del index
+
+
+if __name__ == "__main__":
+    gc.disable()
+    data = Dataset_10M()
+    use(data, "ivf_pq_10M.index")
+    del data
+    gc.collect()
+    data = Dataset_50M()
+    use(data, "ivf_pq_50M.index")
+    del data
+    gc.collect()

@@ -1,41 +1,51 @@
 import numpy as np
 import time
-import random
+import sys
 from functools import wraps
-from faiss.contrib.datasets import DatasetSIFT1M
+import gc
 
 
-ds = DatasetSIFT1M()
-
-xq = ds.get_queries()
-xb = ds.get_database()
-gt = ds.get_groundtruth()
-xt = ds.get_train()
-
-nq, d = xq.shape
+def ivecs_read(fname):
+    a = np.fromfile(fname, dtype='int32')
+    d = a[0]
+    return a.reshape(-1, d + 1)[:, 1:].copy()
 
 
-def generate_data(d: int, size: int, mu: int, sigma: float, datatype: str):
-    np.random.seed(0)
-    data = []
-    for i in range(size):
-        data.append(np.random.normal(mu, sigma, d))
-    return np.array(data).astype(datatype)
+def fvecs_read(fname):
+    return ivecs_read(fname).view('float32')
 
 
-def generate_ids(size):
-    ids = []
-    for i in list(range(size)):
-        ids.append(i * (random.randint(1, size) // 100))
-    return np.array(ids)
+def ivecs_mmap(fname):
+    a = np.memmap(fname, dtype='int32', mode='r')
+    d = a[0]
+    return a.reshape(-1, d + 1)[:, 1:]
 
 
-def generate_query(d: int, size: int, mu: int, sigma: float):
-    np.random.seed(12)
-    query = []
-    for i in range(size):
-        query.append(np.random.normal(mu, sigma, d))
-    return np.array(query).astype('float32')
+def fvecs_mmap(fname):
+    return ivecs_mmap(fname).view('float32')
+
+
+def bvecs_mmap(fname):
+    x = np.memmap(fname, dtype='uint8', mode='r')
+    d = x[:4].view('int32')[0]
+    return x.reshape(-1, d + 4)[:, 4:]
+
+
+def ivecs_write(fname, m):
+    n, d = m.shape
+    m1 = np.empty((n, d + 1), dtype='int32')
+    m1[:, 0] = d
+    m1[:, 1:] = m
+    m1.tofile(fname)
+
+
+def fvecs_write(fname, m):
+    m = m.astype('float32')
+    ivecs_write(fname, m.view('int32'))
+
+
+def sanitize(x):
+    return np.ascontiguousarray(x, dtype='float32')
 
 
 def timeit(func):
@@ -51,3 +61,18 @@ def timeit(func):
             )
 
     return _time_it
+
+
+def actualsize(input_obj):
+    memory_size = 0
+    ids = set()
+    objects = [input_obj]
+    while objects:
+        new = []
+        for obj in objects:
+            if id(obj) not in ids:
+                ids.add(id(obj))
+                memory_size += sys.getsizeof(obj)
+                new.append(obj)
+        objects = gc.get_referents(*new)
+    return memory_size
