@@ -2,6 +2,7 @@ fn main() {
     if_control_flow();
     loop_control_flow();
     while_control_flow();
+    for_control_flow();
 }
 
 fn if_control_flow() {
@@ -36,6 +37,12 @@ fn if_control_flow() {
     // let number = if condition { 5 } else { "six" };
 }
 
+/*
+Rust 有三种循环：loop、while 和 for
+
+loop 关键字告诉 Rust 一遍又一遍地执行一段代码直到你明确要求停止
+
+*/
 fn loop_control_flow() {
     // loop
     let mut i = 1;
@@ -47,7 +54,27 @@ fn loop_control_flow() {
         }
     }
 
-    // loop with return value
+    let mut count = 0;
+    'counting_up: loop {
+        println!("count = {}", count);
+        let mut remaining = 10;
+
+        loop {
+            println!("remaining = {}", remaining);
+            if remaining == 9 {
+                break; // 退出内层循环
+            }
+            if count == 2 {
+                break 'counting_up; // 退出外层循环
+            }
+            remaining -= 1;
+        }
+
+        count += 1;
+    }
+    println!("End count = {}", count);
+
+    // 从循环返回值
     let mut counter = 0;
     let result = loop {
         counter += 1;
@@ -74,9 +101,15 @@ fn while_control_flow() {
         println!("[while] the value is: {}", a[index]);
         index += 1;
     }
+}
 
+fn for_control_flow() {
+    let a = [10, 20, 30, 40, 50];
     for element in a.iter() {
         println!("[for] the value is: {}", element);
+    }
+    for element in a {
+        println!("the value is: {}", element);
     }
 
     // range number

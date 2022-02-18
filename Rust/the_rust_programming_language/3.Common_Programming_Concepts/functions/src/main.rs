@@ -1,19 +1,7 @@
 fn main() {
-    println!("Hello, world!");
     another_function();
-    another_function_with_parameter(3);
     another_function_with_mutil_parameters(1, 2);
-    another_function_with_mutil_types_parameters(1, 2, "123".to_string());
-
-    // create new scopes, {}, is an expression
-    let y = {
-        let x = 3;
-        x + 1
-        // Expressions do not include ending semicolons. 
-        // If you add a semicolon to the end of an expression, 
-        // you turn it into a statement, which will then not return a value
-    };
-    println!("The value of y is: {}", y);  // The value of y is: 4
+    statements_and_expressions();
 
     let x = five();
     println!("The value of x is: {}", x);
@@ -25,25 +13,30 @@ fn another_function() {
     println!("Another function.");
 }
 
-fn another_function_with_parameter(x: i32) {
-    println!("The value of x is: {}", x);
-}
-
+// 在函数签名中，必须 声明每个参数的类型, 参数是特殊变量，是函数签名的一部分
+// 当函数拥有参数（形参）时，可以为这些参数提供具体的值（实参）
 fn another_function_with_mutil_parameters(x: i32, y: i32) {
     println!("The value of x is: {}", x);
     println!("The value of y is: {}", y);
 }
 
-fn another_function_with_mutil_types_parameters(x: i32, y: i32, z: String) {
-    println!("The value of x is: {}", x);
-    println!("The value of y is: {}", y);
-    println!("The value of z is: {}", z);
+// 语句（Statements）是执行一些操作但不返回值的指令。表达式（Expressions）计算并产生一个值
+fn statements_and_expressions() {
+    // 语句
+    let y = 6;
+
+    // 表达式
+    let y = {
+        let x = 3;
+        x + 1 // 表达式的结尾没有分号, 如果在表达式的结尾加上分号，它就变成了语句，而语句不会返回值
+    };
 }
 
+// 在箭头（->）后声明返回值的类型
 fn five() -> i32 {
-    5
+    5 // 表达式
 }
 
 fn plus_one(x: i32) -> i32 {
-    x + 1
+    x + 1 // 表达式
 }
