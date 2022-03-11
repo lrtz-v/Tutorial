@@ -1,261 +1,115 @@
-"""
-电影推荐
-
-预测用户尚未观看的电影的收视率;可以向用户推荐预测收视率最高的电影
-
-模型中的步骤如下:
-    1.通过嵌入矩阵将用户 ID 映射到"用户向量"
-    2.通过嵌入矩阵将电影 ID 映射到"电影载体"
-    3.计算用户矢量和电影矢量之间的点产品,以获得用户和电影之间的匹配分数(预测评级)。
-    4.使用所有已知的用户电影对通过梯度下降训练嵌入。
-"""
-
 import pandas as pd
 import numpy as np
 import paddle
 import paddle.nn as nn
-from paddle.io import Dataset
-
-print(paddle.__version__)
-
-"""
-数据集
-
-    这个数据集（ml-latest-small）描述了MovieLens的五星评级和自由文本标记活动。它包含100836个收视率和3683个标签应用程序，涵盖9742部电影。这些数据由610名用户在1996年3月29日至2018年9月24日期间创建。
-    该数据集于2018年9月26日生成，用户是随机选择的。所有选定的用户都对至少20部电影进行了评分。不包括人口统计信息。每个用户都由一个id表示，不提供其他信息。数据包含在文件中links.csv, movies.csv, ratings.csv以及tags.csv。
-
-用户ID
-    MovieLens的用户是随机选择的
-
-电影ID
-    数据集中只包含至少具有一个分级或标记的电影，这些电影id与MovieLens网站上使用的一致.。
-
-分级数据文件结构(ratings.csv)
-    所有评级都包含在文件中ratings.csv. 文件头行后的每一行代表一个用户对一部电影的一个分级，格式如下： userId，movieId，rating，timestamp
-
-标记数据文件结构(tags.csv)
-    文件中包含所有标记tags.csv. 文件头行后的每一行代表一个用户应用于一部电影的一个标记，格式如下： userId，movieId，tag，timestamp
-
-电影数据文件结构(movies.csv)
-    格式如下： 电影ID、片名、类型
-
-链接数据文件结构(links.csv)
-    格式如下： 电影ID，imdbId，tmdbId
-
-数据下载地址：
-    https://bj.bcebos.com/v1/ai-studio-online/e1686458bb494866ab51d5e2738a68387d2aa14f31164735ae601eda5c7bc938\?responseContentDisposition\=attachment%3B%20filename%3Dml-latest-small.zip\&authorization\=bce-auth-v1%2F0ef6765c1e494918bc0d4c3ca3e5c6d1%2F2021-03-01T12%3A21%3A46Z%2F-1%2F%2F6dddaaacf7aa37c7445d3100844c71f9dd09fe938627f3ac86d0621e3f420f92
-"""
-
-# 数据处理
-df = pd.read_csv('ml-latest-small/ratings.csv')
-user_ids = df["userId"].unique().tolist()
-user2user_encoded = {x: i for i, x in enumerate(user_ids)}
-userencoded2user = {i: x for i, x in enumerate(user_ids)}
-movie_ids = df["movieId"].unique().tolist()
-movie2movie_encoded = {x: i for i, x in enumerate(movie_ids)}
-movie_encoded2movie = {i: x for i, x in enumerate(movie_ids)}
-df["user"] = df["userId"].map(user2user_encoded)
-df["movie"] = df["movieId"].map(movie2movie_encoded)
-
-num_users = len(user2user_encoded)
-num_movies = len(movie_encoded2movie)
-df["rating"] = df["rating"].values.astype(np.float32)
-# 最小和最大额定值将在以后用于标准化额定值
-min_rating = min(df["rating"])
-max_rating = max(df["rating"])
-
-print(
-    "Number of users: {}, Number of Movies: {}, Min rating: {}, Max rating: {}".format(
-        num_users, num_movies, min_rating, max_rating
-    )
-)
+from utils import pickle_load
 
 
-#  准备训练和验证数据
-df = df.sample(frac=1, random_state=42)
-x = df[["user", "movie"]].values
-# 规范化0和1之间的目标。使训练更容易。
-y = df["rating"].apply(lambda x: (x - min_rating) / (max_rating - min_rating)).values
-# 假设对90%的数据进行训练，对10%的数据进行验证。
-train_indices = int(0.9 * df.shape[0])
-x_train, x_val, y_train, y_val = (
-    x[:train_indices],
-    x[train_indices:],
-    y[:train_indices],
-    y[train_indices:],
-)
-y_train = y_train[: ,np.newaxis]
-y_val = y_val[: ,np.newaxis]
-y_train = y_train.astype(np.float32)
-y_val = y_val.astype(np.float32)
-
-# 自定义数据集
-#映射式(map-style)数据集需要继承paddle.io.Dataset
-class SelfDefinedDataset(Dataset):
-    def __init__(self, data_x, data_y, mode = 'train'):
-        super(SelfDefinedDataset, self).__init__()
-        self.data_x = data_x
-        self.data_y = data_y
-        self.mode = mode
-
-    def __getitem__(self, idx):
-        if self.mode == 'predict':
-           return self.data_x[idx]
-        else:
-           return self.data_x[idx], self.data_y[idx]
-
-    def __len__(self):
-        return len(self.data_x)
-
-traindataset = SelfDefinedDataset(x_train, y_train)
-for data, label in traindataset:
-    print(data.shape, label.shape)
-    print(data, label)
-    break
-train_loader = paddle.io.DataLoader(traindataset, batch_size = 128, shuffle = True)
-for batch_id, data in enumerate(train_loader()):
-    x_data = data[0]
-    y_data = data[1]
-
-    print(x_data.shape)
-    print(y_data.shape)
-    break
-
-testdataset = SelfDefinedDataset(x_val, y_val)
-test_loader = paddle.io.DataLoader(testdataset, batch_size = 128, shuffle = True)
-for batch_id, data in enumerate(test_loader()):
-    x_data = data[0]
-    y_data = data[1]
-
-    print(x_data.shape)
-    print(y_data.shape)
-    break
+def get_user_info():
+    usr_file = "./data/users.dat"
+    usr_info = {}
+    # 打开文件，读取所有行到data中
+    with open(usr_file, 'r') as f:
+        data = f.readlines()
+        for item in data:
+            item = item.strip().split("::")
+            usr_info[str(item[0])] = item
+    return usr_info
 
 
-"""
-模型组网
-将用户和电影嵌入到 50 维向量中。
-该模型计算用户和电影嵌入之间的匹配分数，并添加每部电影和每个用户的偏差。比赛分数通过 sigmoid 缩放到间隔[0, 1]。
-"""
+def get_movie_info():
+    # 电影特征的路径
+    movie_data_path = "./data/movies.dat"
+    mov_info = {}
+    # 打开电影数据文件，根据电影ID索引到电影信息
+    with open(movie_data_path, 'r', encoding="ISO-8859-1") as f:
+        data = f.readlines()
+        for item in data:
+            item = item.strip().split("::")
+            mov_info[str(item[0])] = item
+
+    return mov_info
 
 
-EMBEDDING_SIZE = 50
+def get_user_rating_info(user_id):
+    rating_path = "./data/ratings.dat"
+    with open(rating_path, 'r') as f:
+        ratings_data = f.readlines()
 
-class RecommenderNet(nn.Layer):
-    def __init__(self, num_users, num_movies, embedding_size):
-        super(RecommenderNet, self).__init__()
-        self.num_users = num_users
-        self.num_movies = num_movies
-        self.embedding_size = embedding_size
-        weight_attr_user = paddle.ParamAttr(
-            regularizer = paddle.regularizer.L2Decay(1e-6),
-            initializer = nn.initializer.KaimingNormal()
-            )
-        self.user_embedding = nn.Embedding(
-            num_users,
-            embedding_size,
-            weight_attr=weight_attr_user
-        )
-        self.user_bias = nn.Embedding(num_users, 1)
-        weight_attr_movie = paddle.ParamAttr(
-            regularizer = paddle.regularizer.L2Decay(1e-6),
-            initializer = nn.initializer.KaimingNormal()
-            )
-        self.movie_embedding = nn.Embedding(
-            num_movies,
-            embedding_size,
-            weight_attr=weight_attr_movie
-        )
-        self.movie_bias = nn.Embedding(num_movies, 1)
-
-    def forward(self, inputs):
-        user_vector = self.user_embedding(inputs[:, 0])
-        user_bias = self.user_bias(inputs[:, 0])
-        movie_vector = self.movie_embedding(inputs[:, 1])
-        movie_bias = self.movie_bias(inputs[:, 1])
-        dot_user_movie = paddle.dot(user_vector, movie_vector)
-        x = dot_user_movie + user_bias + movie_bias
-        x = nn.functional.sigmoid(x)
-
-        return x
+    usr_rating_info = {}
+    for item in ratings_data:
+        item = item.strip().split("::")
+        # 处理每行数据，分别得到用户ID，电影ID，和评分
+        usr_id,movie_id,score = item[0],item[1],item[2]
+        if usr_id == str(user_id):
+            usr_rating_info[movie_id] = float(score)
+    return usr_rating_info
 
 
-
-"""
-模型训练,后台可通过VisualDl观察Loss曲线。
-"""
-model = RecommenderNet(num_users, num_movies, EMBEDDING_SIZE)
-model = paddle.Model(model)
-
-optimizer = paddle.optimizer.Adam(parameters=model.parameters(), learning_rate=0.0003)
-loss = nn.BCELoss()
-metric = paddle.metric.Accuracy()
-
-# 设置visualdl路径
-log_dir = './visualdl'
-callback = paddle.callbacks.VisualDL(log_dir=log_dir)
-
-model.prepare(optimizer, loss, metric)
-model.fit(train_loader, epochs=5, save_dir='./checkpoints', verbose=1, callbacks=callback)
+def get_user_feature():
+    return pickle_load('./usr_feat.pkl')
 
 
-"""
-模型评估
-"""
-model.evaluate(test_loader, batch_size=64, verbose=1)
+def get_movie_feature():
+    return pickle_load('./mov_feat.pkl')
 
 
-"""
-模型预测
-"""
-movie_df = pd.read_csv('ml-latest-small/movies.csv')
+user_info = get_user_info()
+mov_info = get_movie_info()
 
-# 获取一个用户，查看他的推荐电影
-# user_id = df.userId.sample(1).iloc[0]
-user_id = 160
-movies_watched_by_user = df[df.userId == user_id]
-movies_not_watched = movie_df[
-    ~movie_df["movieId"].isin(movies_watched_by_user.movieId.values)
-]["movieId"]
-movies_not_watched = list(
-    set(movies_not_watched).intersection(set(movie2movie_encoded.keys()))
-)
-movies_not_watched = [[movie2movie_encoded.get(x)] for x in movies_not_watched]
-user_encoder = user2user_encoded.get(user_id)
-user_movie_array = np.hstack(
-    ([[user_encoder]] * len(movies_not_watched), movies_not_watched)
-)
-testdataset = SelfDefinedDataset(user_movie_array, user_movie_array, mode = 'predict')
-test_loader = paddle.io.DataLoader(testdataset, batch_size = 9703, shuffle = False, return_list=True,)
+usr_feats = get_user_feature()
+mov_feats = get_movie_feature()
 
-ratings = model.predict(test_loader)
-ratings = np.array(ratings)
-ratings = np.squeeze(ratings, 0)
-ratings = np.squeeze(ratings, 2)
-ratings = np.squeeze(ratings, 0)
-top_ratings_indices = ratings.argsort()[::-1][0:10]
 
-print(top_ratings_indices)
-recommended_movie_ids = [
-    movie_encoded2movie.get(movies_not_watched[x][0]) for x in top_ratings_indices
-]
+def recommand(usr_ID):
+    global user_info, mov_info, usr_feats, mov_feats
 
-print("用户的ID为: {}".format(user_id))
-print("====" * 8)
-print("用户评分较高的电影：")
-print("----" * 8)
-top_movies_user = (
-    movies_watched_by_user.sort_values(by="rating", ascending=False)
-    .head(5)
-    .movieId.values
-)
-movie_df_rows = movie_df[movie_df["movieId"].isin(top_movies_user)]
-for row in movie_df_rows.itertuples():
-    print(row.title, ":", row.genres)
+    usr_ID_feat = usr_feats[str(usr_ID)]
+    # 记录计算的相似度
+    cos_sims = []
+    # 记录下与用户特征计算相似的电影顺序
 
-print("----" * 8)
-print("为用户推荐的10部电影：")
-print("----" * 8)
-recommended_movies = movie_df[movie_df["movieId"].isin(recommended_movie_ids)]
-for row in recommended_movies.itertuples():
-    print(row.title, ":", row.genres)
+    # with dygraph.guard():
+    paddle.disable_static()
+    # 索引电影特征，计算和输入用户ID的特征的相似度
+    for idx, key in enumerate(mov_feats.keys()):
+        mov_feat = mov_feats[key]
+        usr_feat = paddle.to_tensor(usr_ID_feat)
+        mov_feat = paddle.to_tensor(mov_feat)
+
+        # 计算余弦相似度
+        sim = paddle.nn.functional.common.cosine_similarity(usr_feat, mov_feat)
+        # 打印特征和相似度的形状
+        if idx == 0:
+            print("电影特征形状：{}, 用户特征形状：{}, 相似度结果形状：{}，相似度结果：{}".format(mov_feat.shape, usr_feat.shape, sim.numpy().shape, sim.numpy()))
+        # 从形状为（1，1）的相似度sim中获得相似度值sim.numpy()[0]，并添加到相似度列表cos_sims中
+        cos_sims.append(sim.numpy()[0])
+
+    # 对相似度排序，获得最大相似度在cos_sims中的位置
+    index = np.argsort(cos_sims)
+    # 打印相似度最大的前topk个位置
+    topk = 10
+    print("相似度最大的前{}个索引是{}\n对应的相似度是：{}\n".format(topk, index[-topk:], [cos_sims[k] for k in index[-topk:]]))
+
+    for i in index[-topk:]:
+        print("对应的电影分别是：movie:{}".format(mov_info[list(mov_feats.keys())[i]]))
+
+
+def get_user_rating(usr_a):
+    usr_rating_info = get_user_rating_info(usr_a)
+    movie_ids = list(usr_rating_info.keys())
+    print("ID为 {} 的用户，评分过的电影数量是: ".format(usr_a), len(movie_ids))
+
+    #####################################
+    ## 选出ID为usr_a评分最高的前topk个电影 ##
+    #####################################
+    topk = 10
+    ratings_topk = sorted(usr_rating_info.items(), key=lambda item:item[1])[-topk:]
+    for k, score in ratings_topk:
+        print("电影ID: {}，评分是: {}, 电影信息: {}".format(k, score, mov_info[k]))
+
+
+if __name__ == "__main__":
+    usr_id = 2
+    recommand(usr_id)
+    get_user_rating(usr_id)
